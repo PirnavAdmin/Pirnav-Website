@@ -1,9 +1,9 @@
-const DEFAULT_API_ORIGIN = "http://98.130.26.89:5000";
+const DEFAULT_API_ORIGIN = "";
 
 export const API_ORIGIN =
   import.meta.env.VITE_API_ORIGIN?.trim().replace(/\/+$/, "") || DEFAULT_API_ORIGIN;
 
-export const API_BASE_URL = `${API_ORIGIN}/api`;
+export const API_BASE_URL = API_ORIGIN ? `${API_ORIGIN}/api` : "/api";
 
 export const buildApiUrl = (path = "") => {
   const normalizedPath = String(path).replace(/^\/+/, "");

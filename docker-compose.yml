@@ -10,7 +10,7 @@ services:
 
       args:
 
-        VITE_API_ORIGIN: "${VITE_API_ORIGIN:-http://98.130.26.89:5000}"
+        VITE_API_ORIGIN: "${VITE_API_ORIGIN-}"
 
     depends_on:
 
@@ -47,6 +47,12 @@ services:
       ConnectionStrings__DefaultConnection: "${BACKEND_CONNECTION_STRING}"
 
       Cors__AllowedOrigins: "${CORS_ALLOWED_ORIGINS:-http://98.130.26.89,http://98.130.26.89:5173}"
+
+      ContactEmailSettings__Password: "${EMAIL_PASSWORD:-change-me}"
+
+      ContactEmailSettings__SenderEmail: "${EMAIL_SENDER_EMAIL:-no-reply@example.com}"
+
+      ContactEmailSettings__SenderName: "${EMAIL_CONTACT_SENDER_NAME:-Pirnav Contact}"
 
       EmailSettings__ContactEmail: "${EMAIL_CONTACT:-contact@example.com}"
 

@@ -18,12 +18,18 @@ namespace Pirnav.API.Controllers
         private readonly AppDbContext _context;
         private readonly EmailService _emailService;
         private readonly IConfiguration _config;
+        private readonly ILogger<ContactController> _logger;
 
-        public ContactController(AppDbContext context, EmailService emailService, IConfiguration config)
+        public ContactController(
+            AppDbContext context,
+            EmailService emailService,
+            IConfiguration config,
+            ILogger<ContactController> logger)
         {
             _context = context;
             _emailService = emailService;
             _config = config;
+            _logger = logger;
         }
 
         // ================= SEND MESSAGE =================
@@ -141,7 +147,13 @@ namespace Pirnav.API.Controllers
     ? "User"
     : CultureInfo.CurrentCulture.TextInfo.ToTitleCase(model.Name.ToLower());
 
-            var logoUrl = "https://pirnav.com/images/pirnav_logo.png";
+            var logoUrl = _config["Branding:LogoUrl"] ?? "http://98.130.26.89:5000/images/pirnav-logo.png";
+            var contactSenderEmail = _config["ContactEmailSettings:SenderEmail"]
+                ?? _config["EmailSettings:SenderEmail"];
+            var contactSenderName = _config["ContactEmailSettings:SenderName"]
+                ?? _config["EmailSettings:SenderName"];
+            var contactSenderPassword = _config["ContactEmailSettings:Password"]
+                ?? _config["EmailSettings:Password"];
 
             // ================= COMMON HEADER =================
             var header = $@"
@@ -207,14 +219,21 @@ Regards,<br/>
             var hrEmail = _config["EmailSettings:HrEmail"];
             if (!string.IsNullOrEmpty(hrEmail))
             {
-                await _emailService.SendEmailAsync(
-    hrEmail,
-    hrSubject,
-    hrBody,
-    _config["ContactEmailSettings:SenderEmail"],
-    _config["ContactEmailSettings:SenderName"],
-    _config["ContactEmailSettings:Password"]
-);
+                try
+                {
+                    await _emailService.SendEmailAsync(
+                        hrEmail,
+                        hrSubject,
+                        hrBody,
+                        contactSenderEmail,
+                        contactSenderName,
+                        contactSenderPassword
+                    );
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Failed to send contact notification email to HR.");
+                }
             }
 
             // ================= USER EMAIL =================
@@ -272,14 +291,21 @@ Warm regards,<br/>
 
             if (!string.IsNullOrEmpty(model.Email))
             {
-                await _emailService.SendEmailAsync(
-    model.Email,
-    userSubject,
-    userBody,
-    _config["ContactEmailSettings:SenderEmail"],
-    _config["ContactEmailSettings:SenderName"],
-    _config["ContactEmailSettings:Password"]
-);
+                try
+                {
+                    await _emailService.SendEmailAsync(
+                        model.Email,
+                        userSubject,
+                        userBody,
+                        contactSenderEmail,
+                        contactSenderName,
+                        contactSenderPassword
+                    );
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Failed to send contact confirmation email to user.");
+                }
             }
 
             return Ok(new
