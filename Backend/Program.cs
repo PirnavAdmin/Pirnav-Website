@@ -261,7 +261,10 @@ app.UseSwagger();
 
 app.UseSwaggerUI();
 
-app.UseHttpsRedirection();
+if (builder.Configuration.GetValue("App:UseHttpsRedirection", false))
+{
+    app.UseHttpsRedirection();
+}
 
 
 
