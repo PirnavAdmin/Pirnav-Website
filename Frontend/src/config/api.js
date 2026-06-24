@@ -1,4 +1,4 @@
-const DEFAULT_API_ORIGIN = "https://p.pirnav.com";
+const DEFAULT_API_ORIGIN = "http://98.130.26.89:5000";
 
 export const API_ORIGIN =
   import.meta.env.VITE_API_ORIGIN?.trim().replace(/\/+$/, "") || DEFAULT_API_ORIGIN;
