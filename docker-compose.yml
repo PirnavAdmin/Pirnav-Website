@@ -34,7 +34,7 @@ services:
 
       ASPNETCORE_ENVIRONMENT: "${ASPNETCORE_ENVIRONMENT:-Production}"
 
-      ASPNETCORE_URLS: "http://+:5000"
+      ASPNETCORE_HTTP_PORTS: "5000"
 
       AllowedHosts: "${ALLOWED_HOSTS:-*}"
 
