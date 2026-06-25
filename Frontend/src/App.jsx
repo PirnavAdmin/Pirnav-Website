@@ -53,11 +53,18 @@ import DataScience from "./Components/Services/DataScience.jsx";
 
 /* 🔥 GLOBAL SCROLL FIX */
 function ScrollToTop() {
-  const { pathname } = useLocation();
+  const { pathname, hash } = useLocation();
 
   useEffect(() => {
+    if (hash) {
+      window.setTimeout(() => {
+        document.querySelector(hash)?.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 0);
+      return;
+    }
+
     window.scrollTo(0, 0); // always go to top
-  }, [pathname]);
+  }, [pathname, hash]);
 
   return null;
 }

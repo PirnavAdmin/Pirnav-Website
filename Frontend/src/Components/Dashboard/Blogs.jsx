@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { FaArrowLeft } from "react-icons/fa";
 import "./Blogs.css";
 import { blogPosts } from "./blogData";
 
@@ -7,8 +8,15 @@ const Blogs = () => {
     <main className="blogs-page">
       <section className="blogs-hero">
         <div className="blogs-shell">
-          <span className="blogs-kicker">Blogs</span>
-          <h1>Simple ideas for business and technology.</h1>
+          <div className="blogs-heading-row">
+            <Link to="/#blogs" className="blogs-back-link" aria-label="Back to dashboard blogs">
+              <FaArrowLeft aria-hidden="true" />
+            </Link>
+            <div>
+              <span className="blogs-kicker">Blogs</span>
+              <h1>Simple ideas for business and technology.</h1>
+            </div>
+          </div>
           <p>
             Read short updates from our team about IT support, cloud tools,
             testing and digital work.
