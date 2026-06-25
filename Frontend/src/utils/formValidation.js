@@ -54,6 +54,7 @@ export const getWordCount = (value = "") => {
 };
 const textTokenPattern = /[A-Za-z0-9]+/g;
 const repeatedSingleCharacterPattern = /^([A-Za-z0-9])\1+$/;
+const embeddedNumberWordPattern = /[A-Za-z]+\d+[A-Za-z]+/;
 
 const getEditDistance = (first = "", second = "") => {
   const rows = first.length + 1;
@@ -109,6 +110,28 @@ const isRepeatedSingleCharacterText = (value = "") => {
 const isRepeatedLetterToken = (token = "") =>
   token.length >= 3 && /^([A-Za-z])\1+$/i.test(token);
 
+const hasSuspiciousGibberish = (value = "") => {
+  const tokens = value.match(textTokenPattern) || [];
+  const letterTokens = tokens.filter((token) => /[A-Za-z]/.test(token));
+  const joinedLetters = letterTokens.join("").toLowerCase();
+  const vowelCount = (joinedLetters.match(/[aeiou]/g) || []).length;
+  const embeddedNumberWords = tokens.filter((token) => embeddedNumberWordPattern.test(token));
+
+  if (embeddedNumberWords.length > 0) {
+    return true;
+  }
+
+  if (joinedLetters.length >= 8 && vowelCount === 0) {
+    return true;
+  }
+
+  if (joinedLetters.length >= 14 && vowelCount / joinedLetters.length < 0.2) {
+    return true;
+  }
+
+  return letterTokens.some((token) => /[bcdfghjklmnpqrstvwxyz]{6,}/i.test(token));
+};
+
 const hasMeaningfulText = (value = "", minimumWords = 1) => {
   const trimmed = trimValue(value);
   const tokens = trimmed.match(textTokenPattern) || [];
@@ -122,6 +145,7 @@ const hasMeaningfulText = (value = "", minimumWords = 1) => {
   if (
     !trimmed ||
     isRepeatedSingleCharacterText(trimmed) ||
+    hasSuspiciousGibberish(trimmed) ||
     allLetterTokensAreRepeated ||
     obviousKeyboardMash.test(trimmed.replace(/\s+/g, ""))
   ) {
@@ -147,6 +171,7 @@ export const validateName = (value = "") => {
     trimmed.length < LIMITS.nameMin ||
     trimmed.length > LIMITS.nameMax ||
     isRepeatedSingleCharacterText(trimmed) ||
+    hasSuspiciousGibberish(trimmed) ||
     !namePattern.test(trimmed)
   ) {
     return "Enter a valid name";

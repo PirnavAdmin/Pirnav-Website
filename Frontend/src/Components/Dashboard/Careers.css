@@ -177,6 +177,14 @@
   padding: 80px 6vw;
 }
 
+.culture-section {
+  padding-bottom: 34px;
+}
+
+.openings-section {
+  padding-top: 42px;
+}
+
 .section-heading {
   max-width: 720px;
   margin-bottom: 34px;
@@ -1500,6 +1508,14 @@
   .culture-section,
   .openings-section {
     padding: 64px 22px;
+  }
+
+  .culture-section {
+    padding-bottom: 30px;
+  }
+
+  .openings-section {
+    padding-top: 36px;
   }
 
   .careers-copy h1 {

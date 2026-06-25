@@ -221,7 +221,7 @@ function ContactForm({
           {visibleErrors.message ? <small>{visibleErrors.message}</small> : null}
         </label>
 
-        <button type="submit" disabled={loading || Boolean(errors.email) || Boolean(errors.message)}>
+        <button type="submit" disabled={loading || hasErrors(errors)}>
           {loading ? "Sending..." : buttonLabel}
         </button>
 
