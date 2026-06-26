@@ -261,6 +261,12 @@ const AdminJobs = () => {
     if (deleting || !editingJob?.id) return;
 
     const jobId = editingJob.id;
+    const closeDeletedJob = async () => {
+      setJobs((currentJobs) => currentJobs.filter((job) => job.id !== jobId));
+      setDeleteModal(false);
+      setEditingJob(null);
+      await fetchJobs();
+    };
 
     try {
       setDeleting(true);
@@ -288,13 +294,25 @@ const AdminJobs = () => {
         }
 
         alert(data?.message || "Delete failed");
+        const retryRes = await fetch(`${API_BASE}/${jobId}`, {
+          method: "DELETE",
+          headers,
+        });
+
+        if (retryRes.ok) {
+          await closeDeletedJob();
+          return;
+        }
+
+        const recheckedJobs = await fetchJobs();
+        if (Array.isArray(recheckedJobs) && !recheckedJobs.some((job) => job.id === jobId)) {
+          setDeleteModal(false);
+          setEditingJob(null);
+        }
         return;
       }
 
-      setJobs((currentJobs) => currentJobs.filter((job) => job.id !== jobId));
-      setDeleteModal(false);
-      setEditingJob(null);
-      await fetchJobs();
+      await closeDeletedJob();
     } catch (error) {
       console.error(error);
       alert("Delete failed");
