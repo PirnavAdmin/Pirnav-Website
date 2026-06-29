@@ -86,7 +86,7 @@ namespace Pirnav.API.Controllers
 
             // ================= EMAIL LOGIC START =================
 
-            var logoUrl = "https://pirnav.com/images/pirnav_logo.png";
+            var logoUrl = "https://www.pirnav.com/images/pirnav-logo.png";
 
             string meetingLink = string.IsNullOrEmpty(dto.MeetingLink) ? "#" : dto.MeetingLink;
 
@@ -168,7 +168,7 @@ Email: contact@pirnav.com
             // ================= INTERVIEWER EMAIL =================
             try
             {
-                var baseUrl = "https://p.pirnav.com";
+                var baseUrl = "https://www.pirnav.com";
 
                 var feedbackLink = $"{baseUrl}/feedback.html?token={interview.FeedbackToken}";
                 var resumeLink = $"{baseUrl}/api/JobApplications/view/{application.Id}";
@@ -183,7 +183,7 @@ Email: contact@pirnav.com
 border:1px solid #e5e7eb'>
 
 <div style='padding:25px;text-align:center;border-bottom:1px solid #e5e7eb'>
-<img src='https://pirnav.com/images/pirnav_logo.png'
+<img src='https://www.pirnav.com/images/pirnav-logo.png'
 width='140'
 style='display:block;margin:auto;'/>
 <h2 style='margin-top:15px;color:#111;font-weight:600'>Pirnav Careers</h2>
@@ -325,9 +325,9 @@ Email: contact@pirnav.com
 
             // ================= RESCHEDULE EMAIL LOGIC =================
 
-            var baseUrl = "https://p.pirnav.com";
+            var baseUrl = "https://www.pirnav.com";
 
-            var logoUrl = "https://pirnav.com/images/pirnav_logo.png";
+            var logoUrl = "https://www.pirnav.com/images/pirnav-logo.png";
 
             var header = $@"
 <div style='padding:25px;text-align:center;background:#ffffff;border-bottom:1px solid #e5e7eb'>

@@ -99,7 +99,7 @@ namespace Pirnav.API.Controllers
 
             // ================= EMAIL LOGIC START =================
 
-            var logoUrl = "https://pirnav.com/images/pirnav_logo.png";
+            var logoUrl = "https://www.pirnav.com/images/pirnav-logo.png";
 
             var header = $@"
 <div style='padding:25px;text-align:center;background:#ffffff;border-bottom:1px solid #e5e7eb'>
@@ -269,7 +269,7 @@ We appreciate your interest in joining our team.
 
             if (request.Status?.Trim().ToLower() == "shortlisted")
             {
-                var logoUrl = "https://pirnav.com/images/pirnav_logo.png";
+                var logoUrl = "https://www.pirnav.com/images/pirnav-logo.png";
 
                 var header = $@"
 <div style='padding:25px;text-align:center;background:#ffffff;border-bottom:1px solid #e5e7eb'>

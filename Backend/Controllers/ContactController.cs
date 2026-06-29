@@ -147,7 +147,7 @@ namespace Pirnav.API.Controllers
     ? "User"
     : CultureInfo.CurrentCulture.TextInfo.ToTitleCase(model.Name.ToLower());
 
-            var logoUrl = _config["Branding:LogoUrl"] ?? "http://98.130.26.89:5000/images/pirnav-logo.png";
+            var logoUrl = _config["Branding:LogoUrl"] ?? "https://www.pirnav.com/images/pirnav-logo.png";
             var contactSenderEmail = _config["ContactEmailSettings:SenderEmail"]
                 ?? _config["EmailSettings:SenderEmail"];
             var contactSenderName = _config["ContactEmailSettings:SenderName"]
@@ -268,7 +268,7 @@ Our team will review your message and respond within <b>24–48 business hours</
 </div>
 
 <div style='text-align:center;margin-top:25px'>
-<a href='https://p.pirnav.com/careers'
+<a href='https://www.pirnav.com/careers'
 style='background:#0A66C2;color:white;padding:12px 25px;
 text-decoration:none;border-radius:6px;font-weight:600;display:inline-block'>
 Explore Careers

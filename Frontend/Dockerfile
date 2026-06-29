@@ -5,7 +5,7 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm ci
 
-ARG VITE_API_ORIGIN=http://localhost:5000
+ARG VITE_API_ORIGIN=https://www.pirnav.com
 ENV VITE_API_ORIGIN=${VITE_API_ORIGIN}
 
 COPY . .

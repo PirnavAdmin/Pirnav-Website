@@ -7,7 +7,7 @@ export default defineConfig({
   server: {
     proxy: {
       "/api": {
-        target: "https://p.pirnav.com",
+        target: "https://www.pirnav.com",
         changeOrigin: true,
         secure: true,
       },

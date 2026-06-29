@@ -42,11 +42,11 @@ services:
 
       App__UseHttpsRedirection: "${APP_USE_HTTPS_REDIRECTION:-false}"
 
-      Branding__LogoUrl: "${PUBLIC_LOGO_URL:-http://98.130.26.89:5000/images/pirnav-logo.png}"
+      Branding__LogoUrl: "${PUBLIC_LOGO_URL:-https://www.pirnav.com/images/pirnav-logo.png}"
 
       ConnectionStrings__DefaultConnection: "${BACKEND_CONNECTION_STRING}"
 
-      Cors__AllowedOrigins: "${CORS_ALLOWED_ORIGINS:-http://98.130.26.89,http://98.130.26.89:5173}"
+      Cors__AllowedOrigins: "${CORS_ALLOWED_ORIGINS:-https://www.pirnav.com}"
 
       ContactEmailSettings__Password: "${EMAIL_PASSWORD:-change-me}"
 
@@ -78,7 +78,7 @@ services:
 
       JwtSettings__Key: "${JWT_KEY:-replace-with-at-least-32-characters}"
 
-      PublicBaseUrl: "${PUBLIC_BASE_URL:-http://98.130.26.89}"
+      PublicBaseUrl: "${PUBLIC_BASE_URL:-https://www.pirnav.com}"
 
     ports:
 
