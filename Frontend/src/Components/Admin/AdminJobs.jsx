@@ -181,6 +181,7 @@ const AdminJobs = () => {
   const [deleteModal, setDeleteModal] = useState(false);
   const [editingJob, setEditingJob] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const [openId, setOpenId] = useState(null);
 
   const [form, setForm] = useState(initialJobForm);
@@ -212,9 +213,12 @@ const AdminJobs = () => {
       const res = await fetch(API_BASE, { headers });
       if (!res.ok) throw new Error("Failed to fetch jobs");
       const data = await res.json();
-      setJobs(Array.isArray(data) ? data : []);
+      const nextJobs = Array.isArray(data) ? data : [];
+      setJobs(nextJobs);
+      return nextJobs;
     } catch (error) {
       console.error(error);
+      return null;
     } finally {
       setLoading(false);
     }
@@ -254,22 +258,66 @@ const AdminJobs = () => {
   };
 
   const handleDelete = async () => {
+    if (deleting || !editingJob?.id) return;
+
+    const jobId = editingJob.id;
+    const closeDeletedJob = async () => {
+      setJobs((currentJobs) => currentJobs.filter((job) => job.id !== jobId));
+      setDeleteModal(false);
+      setEditingJob(null);
+      await fetchJobs();
+    };
+
     try {
+      setDeleting(true);
       const headers = getHeaders();
       if (!headers) return;
+
       const res = await fetch(`${API_BASE}/${editingJob.id}`, {
         method: "DELETE",
         headers,
       });
+
+      let data = null;
+      try {
+        data = await res.json();
+      } catch (_) {
+        // ignore
+      }
+
       if (!res.ok) {
-        alert("Delete failed");
+        const latestJobs = await fetchJobs();
+        if (Array.isArray(latestJobs) && !latestJobs.some((job) => job.id === jobId)) {
+          setDeleteModal(false);
+          setEditingJob(null);
+          return;
+        }
+
+        alert(data?.message || "Delete failed");
+        const retryRes = await fetch(`${API_BASE}/${jobId}`, {
+          method: "DELETE",
+          headers,
+        });
+
+        if (retryRes.ok) {
+          await closeDeletedJob();
+          return;
+        }
+
+        const recheckedJobs = await fetchJobs();
+        if (Array.isArray(recheckedJobs) && !recheckedJobs.some((job) => job.id === jobId)) {
+          setDeleteModal(false);
+          setEditingJob(null);
+        }
         return;
       }
-      setDeleteModal(false);
-      setEditingJob(null);
-      fetchJobs();
+
+      await closeDeletedJob();
     } catch (error) {
       console.error(error);
+      alert("Delete failed");
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -579,9 +627,19 @@ const AdminJobs = () => {
             <h3>Delete Job</h3>
             <p>Are you sure you want to delete this job?</p>
             <div className="modal-actions">
-              <button className="job-modal-cancel-btn" onClick={() => setDeleteModal(false)}>Cancel</button>
-              <button onClick={handleDelete} className="delete-btn job-modal-action-btn">
-                Delete
+              <button 
+                className="job-modal-cancel-btn" 
+                onClick={() => setDeleteModal(false)}
+                disabled={deleting}
+              >
+                Cancel
+              </button>
+              <button 
+                onClick={handleDelete} 
+                className="delete-btn job-modal-action-btn"
+                disabled={deleting}
+              >
+                {deleting ? "Deleting..." : "Delete"}
               </button>
             </div>
           </div>

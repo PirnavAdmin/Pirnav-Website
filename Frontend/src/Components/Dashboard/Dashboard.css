@@ -1784,9 +1784,6 @@
   margin:10px 0 0;
   color:#667892;
   line-height:1.6;
-  white-space:nowrap;
-  overflow:hidden;
-  text-overflow:ellipsis;
   max-height:none;
 }
 

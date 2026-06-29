@@ -8,7 +8,7 @@ export const blogPosts = [
     slug: "how-good-it-support-helps-daily-work",
     title: "How Good IT Support Helps Daily Work",
     description:
-      "A simple look at how fast support and clear communication help teams work better every day.",
+      "Fast support keeps daily work moving smoothly.",
     image: blogCreativeTeam,
     category: "IT Support",
     readTime: "3 min read",
@@ -25,7 +25,7 @@ export const blogPosts = [
     slug: "why-cloud-tools-help-growing-businesses",
     title: "Why Cloud Tools Help Growing Businesses",
     description:
-      "See how cloud tools help businesses stay flexible, secure and ready for future growth.",
+      "Cloud tools keep growing teams flexible and ready.",
     image: blogResearch,
     category: "Cloud",
     readTime: "4 min read",
@@ -42,7 +42,7 @@ export const blogPosts = [
     slug: "why-testing-matters-in-software-projects",
     title: "Why Testing Matters in Software Projects",
     description:
-      "Learn how testing and QA help teams release better software with fewer problems.",
+      "Testing helps teams release cleaner software.",
     image: blogSecurity,
     category: "Testing",
     readTime: "3 min read",
@@ -59,7 +59,7 @@ export const blogPosts = [
     slug: "why-cybersecurity-awareness-matters-for-teams",
     title: "Why Cybersecurity Awareness Matters for Teams",
     description:
-      "Understand how simple security habits help IT teams reduce risk and protect day-to-day business operations.",
+      "Simple security habits reduce everyday business risk.",
     image: blogInnovation,
     category: "Cybersecurity",
     readTime: "4 min read",

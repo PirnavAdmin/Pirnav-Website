@@ -536,7 +536,7 @@ Learn More About Pirnav
   </div>
 </section>
 
-<section className="blog-preview-section fade-up">
+<section id="blogs" className="blog-preview-section fade-up">
   <div className="blog-preview-shell">
     <div className="blog-preview-header">
       <div>
