@@ -13,6 +13,10 @@ const LIMITS = {
 const namePattern = /^[A-Za-z]+(?:[ '-][A-Za-z]+)*$/;
 const companyPattern = /^[A-Za-z0-9][A-Za-z0-9 &'().,\-/]*$/;
 const emailPattern = /^[a-zA-Z0-9._%+-]{1,40}@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+const htmlTagPattern = /<[^>]*>/;
+const urlPattern = /\b(?:https?:\/\/|www\.|[a-z0-9-]+\.(?:com|net|org|in|co|io|info|biz)\b)/i;
+const repeatedPunctuationPattern = /([!?.,])\1{3,}/;
+const contactTextPattern = /^[A-Za-z0-9\s.,!?'"()&:;+\-/]+$/;
 const typoEmailDomains = new Set([
   "imal.com",
   "imail.com",
@@ -110,6 +114,30 @@ const isRepeatedSingleCharacterText = (value = "") => {
 const isRepeatedLetterToken = (token = "") =>
   token.length >= 3 && /^([A-Za-z])\1+$/i.test(token);
 
+const getVowelRatio = (value = "") => {
+  const letters = value.replace(/[^A-Za-z]/g, "").toLowerCase();
+
+  if (!letters) {
+    return 0;
+  }
+
+  return (letters.match(/[aeiou]/g) || []).length / letters.length;
+};
+
+const hasUnnaturalLetterShape = (token = "") => {
+  const letters = token.replace(/[^A-Za-z]/g, "").toLowerCase();
+
+  if (letters.length < 5) {
+    return false;
+  }
+
+  if (!/[aeiou]/.test(letters)) {
+    return true;
+  }
+
+  return /[bcdfghjklmnpqrstvwxyz]{5,}/i.test(letters);
+};
+
 const hasSuspiciousGibberish = (value = "") => {
   const tokens = value.match(textTokenPattern) || [];
   const letterTokens = tokens.filter((token) => /[A-Za-z]/.test(token));
@@ -129,7 +157,22 @@ const hasSuspiciousGibberish = (value = "") => {
     return true;
   }
 
-  return letterTokens.some((token) => /[bcdfghjklmnpqrstvwxyz]{6,}/i.test(token));
+  return letterTokens.some(hasUnnaturalLetterShape);
+};
+
+const hasSuspiciousEmailLocalPart = (localPart = "") => {
+  const normalizedLocalPart = localPart.replace(/[._+-]/g, "");
+  const letterOnlyLocalPart = normalizedLocalPart.replace(/[^A-Za-z]/g, "");
+
+  if (isRepeatedSingleCharacterText(normalizedLocalPart)) {
+    return true;
+  }
+
+  if (letterOnlyLocalPart.length < 7 || /\d/.test(normalizedLocalPart)) {
+    return false;
+  }
+
+  return hasSuspiciousGibberish(letterOnlyLocalPart);
 };
 
 const hasMeaningfulText = (value = "", minimumWords = 1) => {
@@ -166,15 +209,24 @@ const hasMeaningfulText = (value = "", minimumWords = 1) => {
 export const validateName = (value = "") => {
   const trimmed = trimValue(value);
 
+  if (!trimmed) {
+    return "Name is required";
+  }
+
+  if (trimmed.length < LIMITS.nameMin) {
+    return `Name must be at least ${LIMITS.nameMin} characters`;
+  }
+
+  if (trimmed.length > LIMITS.nameMax) {
+    return `Name must be ${LIMITS.nameMax} characters or less`;
+  }
+
   if (
-    !trimmed ||
-    trimmed.length < LIMITS.nameMin ||
-    trimmed.length > LIMITS.nameMax ||
     isRepeatedSingleCharacterText(trimmed) ||
     hasSuspiciousGibberish(trimmed) ||
     !namePattern.test(trimmed)
   ) {
-    return "Enter a valid name";
+    return "Enter a valid name using letters only";
   }
 
   return "";
@@ -228,16 +280,33 @@ export const validateEmail = (value = "") => {
     return "This email domain is not supported";
   }
 
+  if (domain === "gmail.com" && hasSuspiciousEmailLocalPart(localPart)) {
+    return "Enter a valid Gmail address";
+  }
+
   return "";
 };
 
 export const validateSubject = (value = "") => {
   const trimmed = trimValue(value);
 
+  if (!trimmed) {
+    return "Subject is required";
+  }
+
+  if (trimmed.length < LIMITS.subjectMin) {
+    return `Subject must be at least ${LIMITS.subjectMin} characters`;
+  }
+
+  if (trimmed.length > LIMITS.subjectMax) {
+    return `Subject must be ${LIMITS.subjectMax} characters or less`;
+  }
+
   if (
-    !trimmed ||
-    trimmed.length < LIMITS.subjectMin ||
-    trimmed.length > LIMITS.subjectMax ||
+    htmlTagPattern.test(trimmed) ||
+    urlPattern.test(trimmed) ||
+    repeatedPunctuationPattern.test(trimmed) ||
+    !contactTextPattern.test(trimmed) ||
     !hasMeaningfulText(trimmed, 1)
   ) {
     return "Enter a valid subject";
@@ -249,14 +318,26 @@ export const validateSubject = (value = "") => {
 export const validateMessage = (value = "") => {
   const trimmed = trimValue(value);
 
+  if (!trimmed) {
+    return "Message is required";
+  }
+
   if (getWordCount(trimmed) > LIMITS.messageWordMax) {
     return `Message must be ${LIMITS.messageWordMax} words or less`;
   }
 
+  if (trimmed.length < LIMITS.messageMin) {
+    return `Message must be at least ${LIMITS.messageMin} characters`;
+  }
+
+  if (trimmed.length > LIMITS.messageMax) {
+    return `Message must be ${LIMITS.messageMax} characters or less`;
+  }
+
   if (
-    !trimmed ||
-    trimmed.length < LIMITS.messageMin ||
-    trimmed.length > LIMITS.messageMax ||
+    htmlTagPattern.test(trimmed) ||
+    repeatedPunctuationPattern.test(trimmed) ||
+    !contactTextPattern.test(trimmed) ||
     !hasMeaningfulText(trimmed, 3)
   ) {
     return "Enter a valid message";
@@ -288,6 +369,21 @@ export const validateContactForm = (values) => {
   };
 
   return errors;
+};
+
+export const validateContactField = (name, value = "") => {
+  switch (name) {
+    case "name":
+      return validateName(value);
+    case "email":
+      return validateEmail(value);
+    case "subject":
+      return validateSubject(value);
+    case "message":
+      return validateMessage(value);
+    default:
+      return "";
+  }
 };
 
 export const validateDemoForm = (values) => {

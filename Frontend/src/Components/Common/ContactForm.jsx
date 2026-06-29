@@ -5,6 +5,7 @@ import {
   getWordCount,
   normalizeEmailInput,
   sanitizeFormPayload,
+  validateContactField,
   validateContactForm,
 } from "../../utils/formValidation";
 import "./ContactForm.css";
@@ -17,6 +18,24 @@ const defaultValues = {
   email: "",
   subject: "",
   message: "",
+};
+
+const sanitizeContactInput = (name, value) => {
+  const withoutLeadingSpace = value.replace(/^\s+/, "");
+
+  if (name === "email") {
+    return normalizeEmailInput(withoutLeadingSpace);
+  }
+
+  if (name === "name") {
+    return withoutLeadingSpace.replace(/[^A-Za-z '-]/g, "").replace(/\s{2,}/g, " ");
+  }
+
+  if (name === "subject" || name === "message") {
+    return withoutLeadingSpace.replace(/[<>]/g, "").replace(/\s{3,}/g, "  ");
+  }
+
+  return withoutLeadingSpace;
 };
 
 function ContactForm({
@@ -53,10 +72,13 @@ function ContactForm({
   }, [status]);
 
   const updateField = (name, value) => {
-    const nextValue = name === "email" ? normalizeEmailInput(value) : value;
+    const nextValue = sanitizeContactInput(name, value);
     const nextValues = { ...formData, [name]: nextValue };
     setFormData(nextValues);
-    setErrors(validateContactForm(nextValues));
+    setErrors((current) => ({
+      ...current,
+      [name]: validateContactField(name, nextValue),
+    }));
   };
 
   const handleChange = (event) => {
@@ -64,12 +86,8 @@ function ContactForm({
 
     updateField(name, value);
 
-    if (name === "email" && value.trim()) {
-      setTouched((current) => ({ ...current, email: true }));
-    }
-
-    if (name === "name" && value.trim().length >= 3) {
-      setTouched((current) => ({ ...current, name: true }));
+    if (value.trim()) {
+      setTouched((current) => ({ ...current, [name]: true }));
     }
   };
 
@@ -156,6 +174,7 @@ function ContactForm({
               name="name"
               placeholder="Your name"
               required
+              minLength={LIMITS.nameMin}
               maxLength={LIMITS.nameMax}
               value={formData.name}
               onChange={handleChange}
@@ -184,13 +203,14 @@ function ContactForm({
 
         <label className="shared-contact-field">
           <span>Subject <em className="required-star">*</em></span>
-          <input
-            type="text"
-            name="subject"
-            placeholder="Subject"
-            required
-            maxLength={LIMITS.subjectMax}
-            value={formData.subject}
+            <input
+              type="text"
+              name="subject"
+              placeholder="Subject"
+              required
+              minLength={LIMITS.subjectMin}
+              maxLength={LIMITS.subjectMax}
+              value={formData.subject}
             onChange={handleChange}
             onBlur={handleBlur}
             aria-invalid={Boolean(visibleErrors.subject)}
@@ -205,6 +225,7 @@ function ContactForm({
             rows="6"
             placeholder="Tell us what you need"
             required
+            minLength={LIMITS.messageMin}
             maxLength={LIMITS.messageMax}
             value={formData.message}
             onChange={handleChange}
@@ -221,7 +242,7 @@ function ContactForm({
           {visibleErrors.message ? <small>{visibleErrors.message}</small> : null}
         </label>
 
-        <button type="submit" disabled={loading || hasErrors(errors)}>
+        <button type="submit" disabled={loading}>
           {loading ? "Sending..." : buttonLabel}
         </button>
 

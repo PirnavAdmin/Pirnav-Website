@@ -557,11 +557,12 @@
 }
 
 .job-details-copy p {
-  max-width: 64ch;
+  max-width: none;
   margin: 0;
   font-size: 0.95rem;
   line-height: 1.55;
   color: rgba(240, 247, 255, 0.8);
+  white-space: pre-line;
 }
 
 .job-inline-skills {
@@ -569,7 +570,7 @@
 }
 
 .job-inline-responsibilities {
-  max-width: 64ch;
+  max-width: none;
   margin-top: 16px;
 }
 
@@ -581,8 +582,6 @@
   color: rgba(240, 247, 255, 0.84);
   line-height: 1.42;
   font-size: 0.95rem;
-  max-height: 132px;
-  overflow-y: auto;
   padding-right: 8px;
 }
 
