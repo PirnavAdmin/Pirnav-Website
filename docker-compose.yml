@@ -72,7 +72,7 @@ services:
 
       JwtSettings__Audience: "${JWT_AUDIENCE:-PirnavClient}"
 
-      JwtSettings__DurationInMinutes: "${JWT_DURATION_MINUTES:-60}"
+      JwtSettings__DurationInMinutes: "${JWT_DURATION_MINUTES:-1440}"
 
       JwtSettings__Issuer: "${JWT_ISSUER:-PirnavAPI}"
 

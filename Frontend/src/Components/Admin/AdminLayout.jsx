@@ -23,6 +23,21 @@ const ADMIN_PROFILE_API = buildApiUrl("Admin/profile");
 const ADMIN_PROFILE_STORAGE_KEY = "adminProfile";
 const ADMIN_PROFILE_UPDATED_EVENT = "admin-profile-updated";
 
+const isJwtExpired = (token) => {
+  try {
+    const payloadPart = token.split(".")[1] || "";
+    const normalizedPayload = payloadPart.replace(/-/g, "+").replace(/_/g, "/");
+    const paddedPayload = normalizedPayload.padEnd(
+      normalizedPayload.length + ((4 - (normalizedPayload.length % 4)) % 4),
+      "="
+    );
+    const payload = JSON.parse(atob(paddedPayload));
+    return typeof payload.exp === "number" && payload.exp * 1000 <= Date.now();
+  } catch {
+    return true;
+  }
+};
+
 const navItems = [
   { path: "/admin", label: "Dashboard", icon: LayoutDashboard, end: true },
   { path: "/admin/jobs", label: "Jobs", icon: Briefcase },
@@ -214,6 +229,13 @@ const AdminLayout = () => {
       const token = localStorage.getItem("adminToken");
 
       if (!token) {
+        navigate("/admin-login");
+        return;
+      }
+
+      if (isJwtExpired(token)) {
+        localStorage.clear();
+        navigate("/admin-login", { state: { message: "Session expired. Please login again." } });
         return;
       }
 
@@ -226,6 +248,12 @@ const AdminLayout = () => {
           },
         });
         const data = await response.json().catch(() => null);
+
+        if (response.status === 401) {
+          localStorage.clear();
+          navigate("/admin-login", { state: { message: "Session expired. Please login again." } });
+          return;
+        }
 
         if (!response.ok || data?.success === false) {
           return;
@@ -255,7 +283,7 @@ const AdminLayout = () => {
     return () => {
       window.removeEventListener(ADMIN_PROFILE_UPDATED_EVENT, handleProfileUpdated);
     };
-  }, []);
+  }, [navigate]);
 
   useEffect(() => {
     const handleClick = (event) => {
