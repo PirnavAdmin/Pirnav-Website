@@ -17,24 +17,24 @@ const ContactUs = () => {
     {
       city: "Vijayawada",
       office: "Vijayawada",
-      phone: "+91 98765 43210",
-      email: "vijayawada@pirnav.com",
+      phone: "040-35339312",
+      email: "contact@pirnav.com",
       description:
         "Connect with our delivery team for product discussions, support needs and solution planning.",
     },
     {
       city: "Tirupati",
       office: "Tirupati",
-      phone: "+91 91234 56789",
-      email: "tirupati@pirnav.com",
+      phone: "040-35339312",
+      email: "contact@pirnav.com",
       description:
         "Visit our office to discuss enterprise services, staffing support and project execution.",
     },
     {
       city: "Banglore",
       office: "Banglore",
-      phone: "+91 99887 76655",
-      email: "banglore@pirnav.com",
+      phone: "040-35339312",
+      email: "contact@pirnav.com",
       description:
         "Meet our team to plan digital initiatives, support requirements and delivery engagement.",
     },
