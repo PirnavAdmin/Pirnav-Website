@@ -1,9 +1,11 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Pirnav.API.Models;
 
 namespace Pirnav.API.Controllers
 {
+    [Authorize(Roles = "Admin, SuperAdmin")]
     [ApiController]
     [Route("api/[controller]")]
     public class ManagersController : ControllerBase

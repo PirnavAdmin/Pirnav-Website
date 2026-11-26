@@ -145,6 +145,7 @@
 }
 
 .contact-section {
+  scroll-margin-top: 100px;
   max-width: 1240px;
   margin: 0 auto;
   padding: 42px 22px 64px;

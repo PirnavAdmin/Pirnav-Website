@@ -1,22 +1,22 @@
 const LIMITS = {
   nameMin: 2,
-  nameMax: 80,
+  nameMax: 50,
   emailMax: 50,
   subjectMin: 3,
-  subjectMax: 120,
+  subjectMax: 100,
   messageMin: 12,
   messageMax: 1000,
-  messageWordMax: 120,
-  companyMax: 120,
+  messageWordMax: 150,
+  companyMax: 100,
 };
 
 const namePattern = /^[A-Za-z]+(?:[ '-][A-Za-z]+)*$/;
-const companyPattern = /^[A-Za-z0-9][A-Za-z0-9 &'().,\-/]*$/;
+const companyPattern = /^[\p{L}\p{N}][\p{L}\p{N}\s&'().,\-/\u2013\u2014\u2018\u2019]*$/u;
 const emailPattern = /^[a-zA-Z0-9._%+-]{1,40}@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 const htmlTagPattern = /<[^>]*>/;
 const urlPattern = /\b(?:https?:\/\/|www\.|[a-z0-9-]+\.(?:com|net|org|in|co|io|info|biz)\b)/i;
 const repeatedPunctuationPattern = /([!?.,])\1{3,}/;
-const contactTextPattern = /^[A-Za-z0-9\s.,!?'"()&:;+\-/]+$/;
+const contactTextPattern = /^[\p{L}\p{N}\s.,!?'"()&:;+\-/\u2013\u2014\u2018\u2019\u201C\u201D\u2022%#@_\[\]*~]+$/u;
 const typoEmailDomains = new Set([
   "imal.com",
   "imail.com",
@@ -131,18 +131,20 @@ const hasUnnaturalLetterShape = (token = "") => {
     return false;
   }
 
-  if (!/[aeiou]/.test(letters)) {
+  if (letters.length >= 6 && !/[aeiouy]/.test(letters)) {
     return true;
   }
 
-  return /[bcdfghjklmnpqrstvwxyz]{5,}/i.test(letters);
+  return /[bcdfghjklmnpqrstvwxz]{7,}/i.test(letters);
 };
 
 const hasSuspiciousGibberish = (value = "") => {
   const tokens = value.match(textTokenPattern) || [];
   const letterTokens = tokens.filter((token) => /[A-Za-z]/.test(token));
+  if (letterTokens.length === 0) return false;
+
   const joinedLetters = letterTokens.join("").toLowerCase();
-  const vowelCount = (joinedLetters.match(/[aeiou]/g) || []).length;
+  const vowelCount = (joinedLetters.match(/[aeiouy]/g) || []).length;
   const embeddedNumberWords = tokens.filter((token) => embeddedNumberWordPattern.test(token));
 
   if (embeddedNumberWords.length > 0) {
@@ -153,11 +155,16 @@ const hasSuspiciousGibberish = (value = "") => {
     return true;
   }
 
-  if (joinedLetters.length >= 14 && vowelCount / joinedLetters.length < 0.2) {
+  if (joinedLetters.length >= 14 && vowelCount / joinedLetters.length < 0.15) {
     return true;
   }
 
-  return letterTokens.some(hasUnnaturalLetterShape);
+  const unnaturalTokens = letterTokens.filter(hasUnnaturalLetterShape);
+  if (unnaturalTokens.length === 0) {
+    return false;
+  }
+
+  return unnaturalTokens.length / letterTokens.length >= 0.5;
 };
 
 const hasSuspiciousEmailLocalPart = (localPart = "") => {

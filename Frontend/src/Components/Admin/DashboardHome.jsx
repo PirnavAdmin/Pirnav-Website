@@ -5,6 +5,7 @@ import {
   Users,
   ArrowUpRight,
   ClipboardCheck,
+  MonitorPlay,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import "./Admin.css";
@@ -19,6 +20,7 @@ const DashboardHome = () => {
     messages: 0,
     jobs: 0,
     applications: 0,
+    demoLeads: 0,
   });
  
   const [loading, setLoading] = useState(true);
@@ -60,10 +62,23 @@ const DashboardHome = () => {
       const response = await res.json();
       console.log("Dashboard summary:", response);
       const summary = response?.data || {};
+      let newDemoCount = 0;
+      try {
+        const demoRes = await fetch(buildApiUrl("Demo?page=1&pageSize=1"), {
+          headers: getHeaders(),
+        });
+        if (demoRes.ok) {
+          const demoData = await demoRes.json();
+          newDemoCount = demoData?.summary?.newRequests ?? 0;
+        }
+      } catch {
+        // Keep demo count 0 if unavailable.
+      }
       setStats({
         messages: summary.unreadMessages ?? 0,
         jobs: summary.openPositions ?? 0,
         applications: summary.pendingReviews ?? 0,
+        demoLeads: newDemoCount,
       });
     } catch (err) {
       console.error("Dashboard summary error:", err);
@@ -140,6 +155,15 @@ const DashboardHome = () => {
       icon: ClipboardCheck,
       className: "applications-card",
       path: "/admin/applications",
+    },
+    {
+      key: "demoLeads",
+      label: "New Demo Leads",
+      value: stats.demoLeads,
+      hint: "Product demos",
+      icon: MonitorPlay,
+      className: "jobs-card",
+      path: "/admin/demo-leads",
     },
   ];
  

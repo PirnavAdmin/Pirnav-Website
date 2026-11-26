@@ -18,6 +18,8 @@ import BlogPost from "./Components/Dashboard/BlogPost.jsx";
 import Footer from "./Components/Dashboard/Footer.jsx";
 import PublicServices from "./Components/Services/OurService.jsx";
 import Products from "./Components/Products/Products.jsx";
+import Events from "./Components/Events/Events.jsx";
+import EventDetail from "./Components/Events/EventDetail.jsx";
 import Careers from "./Components/Dashboard/Careers.jsx";
 import JobDetails from "./Components/Dashboard/JobDetails.jsx";
 import TermsOfUse from "./Components/Dashboard/TermsOfUse.jsx";
@@ -31,6 +33,9 @@ import AdminForgotPassword from "./Components/Admin/AdminForgotPassword.jsx";
 import AdminLogin from "./Components/Admin/AdminLogin.jsx";
 import DashboardHome from "./Components/Admin/DashboardHome.jsx";
 import ContactMessages from "./Components/Admin/ContactMessages.jsx";
+import DemoLeads from "./Components/Admin/DemoLeads.jsx";
+import AdminEvents from "./Components/Admin/AdminEvents.jsx";
+import EventRegistrations from "./Components/Admin/EventRegistrations.jsx";
 import AdminJobs from "./Components/Admin/AdminJobs.jsx";
 import Applications from "./Components/Admin/Applications.jsx";
 import AdminUsers from "./Components/Admin/AdminUsers.jsx";
@@ -94,6 +99,8 @@ function AppContent() {
           <Route path="/blogs/:slug" element={<BlogPost />} />
           <Route path="/services" element={<PublicServices />} />
           <Route path="/products" element={<Products />} />
+          <Route path="/events" element={<Events />} />
+          <Route path="/events/:slug" element={<EventDetail />} />
           <Route path="/terms-of-use" element={<TermsOfUse />} />
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
 
@@ -123,6 +130,9 @@ function AppContent() {
           <Route path="/admin" element={<AdminLayout />}>
             <Route index element={<DashboardHome />} />
             <Route path="services" element={<Navigate to="/admin" replace />} />
+            <Route path="demo-leads" element={<DemoLeads />} />
+            <Route path="events" element={<AdminEvents />} />
+            <Route path="event-registrations" element={<EventRegistrations />} />
             <Route path="messages" element={<ContactMessages />} />
             <Route path="jobs" element={<AdminJobs />} />
             <Route path="applications" element={<Applications />} />

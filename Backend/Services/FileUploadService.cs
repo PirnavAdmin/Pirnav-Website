@@ -47,5 +47,41 @@ namespace Pirnav.API.Services
 
             return "/resumes/" + fileName;
         }
+
+        public async Task<string?> UploadEventImageAsync(IFormFile file, string subfolder = "banners")
+        {
+            if (file == null || file.Length == 0 || file.Length > 5 * 1024 * 1024)
+                return null;
+
+            var extension = Path.GetExtension(file.FileName).ToLowerInvariant();
+            var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".webp" };
+            if (!allowedExtensions.Contains(extension))
+                return null;
+
+            var safeSubfolder = subfolder switch
+            {
+                "speakers" => "speakers",
+                "gallery" => "gallery",
+                _ => "banners"
+            };
+
+            using var memoryStream = new MemoryStream();
+            await file.CopyToAsync(memoryStream);
+            if (!FileSecurity.IsValidImage(memoryStream.ToArray()))
+                return null;
+
+            var uploadsFolder = Path.Combine(_environment.WebRootPath ?? "wwwroot", "uploads", "events", safeSubfolder);
+            if (!Directory.Exists(uploadsFolder))
+                Directory.CreateDirectory(uploadsFolder);
+
+            var fileName = $"{Guid.NewGuid()}{extension}";
+            var filePath = Path.Combine(uploadsFolder, fileName);
+
+            memoryStream.Position = 0;
+            using var fileStream = new FileStream(filePath, FileMode.Create);
+            await memoryStream.CopyToAsync(fileStream);
+
+            return $"/uploads/events/{safeSubfolder}/{fileName}";
+        }
     }
 }

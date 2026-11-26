@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Pirnav.API.Models;
 using Pirnav.API.Services;
 
+[Authorize(Roles = "Admin, SuperAdmin")]
 [ApiController]
 [Route("api/[controller]")]
 public class InterviewFeedbackController : ControllerBase
@@ -90,15 +91,16 @@ public class InterviewFeedbackController : ControllerBase
     {
         try
         {
-            if (string.IsNullOrEmpty(token))
+            if (string.IsNullOrWhiteSpace(token))
                 return BadRequest(new { message = "Token missing" });
 
-            var interview = _context.Interviews
-                .Where(i => !i.IsDeleted)
-                .AsEnumerable()
-                .FirstOrDefault(i => i.FeedbackToken != null && i.FeedbackToken.Trim() == token.Trim());
+            var normalizedToken = token.Trim();
 
-            if (interview == null)
+            var interview = await _context.Interviews
+                .Where(i => !i.IsDeleted && i.FeedbackToken != null && i.FeedbackToken == normalizedToken)
+                .FirstOrDefaultAsync();
+
+            if (interview == null || !string.Equals(interview.FeedbackToken?.Trim(), normalizedToken, StringComparison.Ordinal))
                 return BadRequest(new { message = "Invalid interview" });
 
             var existing = _context.InterviewFeedbacks

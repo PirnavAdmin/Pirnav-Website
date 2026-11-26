@@ -33,6 +33,20 @@ public AppDbContext(DbContextOptions<AppDbContext> options)
 
     public DbSet<DemoRequest> DemoRequests { get; set; }
 
+    public DbSet<EmailOutbox> EmailOutboxes { get; set; }
+
+    public DbSet<DemoActivity> DemoActivities { get; set; }
+
+    public DbSet<Event> Events { get; set; }
+
+    public DbSet<EventSpeaker> EventSpeakers { get; set; }
+
+    public DbSet<EventRegistration> EventRegistrations { get; set; }
+
+    public DbSet<EventActivity> EventActivities { get; set; }
+
+    public DbSet<EventGallery> EventGalleries { get; set; }
+
     public DbSet<InterviewFeedback> InterviewFeedbacks { get; set; }
 
     public DbSet<ChatLog> ChatLogs { get; set; }
@@ -56,6 +70,20 @@ public AppDbContext(DbContextOptions<AppDbContext> options)
         modelBuilder.Entity<Lead>().ToTable("Leads");
 
         modelBuilder.Entity<DemoRequest>().ToTable("DemoRequests");
+
+        modelBuilder.Entity<EmailOutbox>().ToTable("EmailOutbox");
+
+        modelBuilder.Entity<DemoActivity>().ToTable("DemoActivities");
+
+        modelBuilder.Entity<Event>().ToTable("Events");
+
+        modelBuilder.Entity<EventSpeaker>().ToTable("EventSpeakers");
+
+        modelBuilder.Entity<EventRegistration>().ToTable("EventRegistrations");
+
+        modelBuilder.Entity<EventActivity>().ToTable("EventActivities");
+
+        modelBuilder.Entity<EventGallery>().ToTable("EventGallery");
 
         modelBuilder.Entity<InterviewFeedback>().ToTable("InterviewFeedbacks");
 
@@ -232,6 +260,152 @@ public AppDbContext(DbContextOptions<AppDbContext> options)
 
         modelBuilder.Entity<Job>()
             .HasIndex(x => x.IsActive);
+
+        // =======================
+        // DEMO REQUESTS / OUTBOX / ACTIVITIES
+        // =======================
+
+        modelBuilder.Entity<DemoRequest>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.ReferenceNumber).HasMaxLength(40);
+            entity.Property(e => e.ProductId).HasMaxLength(64);
+            entity.Property(e => e.ProductName).HasMaxLength(150);
+            entity.Property(e => e.Name).HasMaxLength(150);
+            entity.Property(e => e.Email).HasMaxLength(150);
+            entity.Property(e => e.Phone).HasMaxLength(30);
+            entity.Property(e => e.Company).HasMaxLength(150);
+            entity.Property(e => e.Message).HasColumnType("longtext");
+            entity.Property(e => e.Status).HasMaxLength(40).HasDefaultValue("New");
+            entity.HasIndex(e => e.ReferenceNumber).IsUnique();
+            entity.HasIndex(e => e.ProductId);
+            entity.HasIndex(e => e.Status);
+            entity.HasIndex(e => e.Email);
+            entity.HasIndex(e => e.CreatedAt);
+            entity.HasOne(e => e.AssignedToUser)
+                .WithMany()
+                .HasForeignKey(e => e.AssignedToUserId)
+                .OnDelete(DeleteBehavior.SetNull);
+        });
+
+        modelBuilder.Entity<EmailOutbox>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.EmailType).HasMaxLength(50);
+            entity.Property(e => e.RecipientEmail).HasMaxLength(150);
+            entity.Property(e => e.SenderEmail).HasMaxLength(150);
+            entity.Property(e => e.SenderName).HasMaxLength(150);
+            entity.Property(e => e.Subject).HasMaxLength(250);
+            entity.Property(e => e.HtmlBody).HasColumnType("longtext");
+            entity.Property(e => e.TextBody).HasColumnType("longtext");
+            entity.Property(e => e.DeliveryStatus).HasMaxLength(30).HasDefaultValue("Pending");
+            entity.Property(e => e.LastError).HasMaxLength(500);
+            entity.HasIndex(e => new { e.DeliveryStatus, e.NextRetryAt });
+            entity.HasOne(e => e.RelatedDemoRequest)
+                .WithMany(d => d.OutboxEmails)
+                .HasForeignKey(e => e.RelatedDemoRequestId)
+                .OnDelete(DeleteBehavior.Cascade);
+            entity.HasOne(e => e.RelatedEventRegistration)
+                .WithMany()
+                .HasForeignKey(e => e.RelatedEventRegistrationId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<Event>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Title).HasMaxLength(200);
+            entity.Property(e => e.Slug).HasMaxLength(220);
+            entity.Property(e => e.Category).HasMaxLength(80);
+            entity.Property(e => e.ShortDescription).HasMaxLength(500);
+            entity.Property(e => e.Description).HasColumnType("longtext");
+            entity.Property(e => e.EventMode).HasMaxLength(30).HasDefaultValue("Online");
+            entity.Property(e => e.LocationOrPlatform).HasMaxLength(250);
+            entity.Property(e => e.MeetingLink).HasMaxLength(500);
+            entity.Property(e => e.Timezone).HasMaxLength(80);
+            entity.Property(e => e.BannerImageUrl).HasMaxLength(500);
+            entity.Property(e => e.Status).HasMaxLength(30).HasDefaultValue("Published");
+            entity.Property(e => e.WhoShouldAttend).HasMaxLength(1000);
+            entity.Property(e => e.AgendaJson).HasColumnType("longtext");
+            entity.Property(e => e.HighlightsSummary).HasColumnType("longtext");
+            entity.Property(e => e.RecordingUrl).HasMaxLength(500);
+            entity.HasIndex(e => e.Slug).IsUnique();
+            entity.HasIndex(e => e.Status);
+            entity.HasIndex(e => e.Category);
+            entity.HasIndex(e => e.StartDateTime);
+        });
+
+        modelBuilder.Entity<EventSpeaker>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Name).HasMaxLength(150);
+            entity.Property(e => e.RoleTitle).HasMaxLength(150);
+            entity.Property(e => e.Organization).HasMaxLength(150);
+            entity.Property(e => e.Bio).HasMaxLength(1000);
+            entity.Property(e => e.PhotoUrl).HasMaxLength(500);
+            entity.HasOne(e => e.Event)
+                .WithMany(ev => ev.Speakers)
+                .HasForeignKey(e => e.EventId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<EventRegistration>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.ReferenceNumber).HasMaxLength(40);
+            entity.Property(e => e.Name).HasMaxLength(150);
+            entity.Property(e => e.Email).HasMaxLength(150);
+            entity.Property(e => e.Phone).HasMaxLength(30);
+            entity.Property(e => e.Company).HasMaxLength(150);
+            entity.Property(e => e.JobRole).HasMaxLength(120);
+            entity.Property(e => e.Notes).HasMaxLength(1000);
+            entity.Property(e => e.AttendanceStatus).HasMaxLength(30).HasDefaultValue("Registered");
+            entity.HasIndex(e => e.ReferenceNumber).IsUnique();
+            entity.HasIndex(e => new { e.EventId, e.Email }).IsUnique();
+            entity.HasOne(e => e.Event)
+                .WithMany(ev => ev.Registrations)
+                .HasForeignKey(e => e.EventId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<EventActivity>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.ActivityType).HasMaxLength(50);
+            entity.Property(e => e.Notes).HasMaxLength(1000);
+            entity.Property(e => e.EmployeeName).HasMaxLength(120);
+            entity.HasOne(e => e.Event)
+                .WithMany(ev => ev.Activities)
+                .HasForeignKey(e => e.EventId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<EventGallery>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.MediaType).HasMaxLength(20).HasDefaultValue("Image");
+            entity.Property(e => e.MediaUrl).HasMaxLength(500);
+            entity.Property(e => e.Caption).HasMaxLength(300);
+            entity.HasOne(e => e.Event)
+                .WithMany(ev => ev.GalleryItems)
+                .HasForeignKey(e => e.EventId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<DemoActivity>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.ActivityType).HasMaxLength(50);
+            entity.Property(e => e.PreviousStatus).HasMaxLength(40);
+            entity.Property(e => e.NewStatus).HasMaxLength(40);
+            entity.Property(e => e.Notes).HasMaxLength(1000);
+            entity.Property(e => e.EmployeeName).HasMaxLength(120);
+            entity.HasIndex(e => e.DemoRequestId);
+            entity.HasOne(e => e.DemoRequest)
+                .WithMany(d => d.Activities)
+                .HasForeignKey(e => e.DemoRequestId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
 
         // =======================
         // MANAGER SEED DATA

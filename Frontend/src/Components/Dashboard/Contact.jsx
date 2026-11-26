@@ -63,20 +63,49 @@ const ContactUs = () => {
   },[]);
 
   useEffect(() => {
-    if (!location.hash) {
+    const searchParams = new URLSearchParams(location.search);
+    const isDemo =
+      searchParams.get("type") === "demo" ||
+      Boolean(searchParams.get("product"));
+    const shouldScroll =
+      isDemo ||
+      location.hash === "#get-in-touch" ||
+      location.state?.scrollToForm;
+
+    if (!shouldScroll) {
+      window.scrollTo(0, 0);
       return;
     }
 
-    const target = document.getElementById(location.hash.slice(1));
+    // Always ensure page opens cleanly from top first
+    window.scrollTo({ top: 0, left: 0, behavior: "instant" });
 
-    if (!target) {
-      return;
-    }
+    // Smoothly scroll down from top to the form section so the user sees the page open from top
+    const timer = setTimeout(() => {
+      const target =
+        document.getElementById("get-in-touch") ||
+        document.querySelector(".contact-section");
 
-    requestAnimationFrame(() => {
-      target.scrollIntoView({ behavior: "smooth", block: "start" });
-    });
-  }, [location.hash]);
+      if (target) {
+        const navOffset = 100; // Offset below fixed navbar so form header is fully visible
+        const elementPosition =
+          target.getBoundingClientRect().top + window.pageYOffset;
+        const offsetPosition = Math.max(0, elementPosition - navOffset);
+
+        window.scrollTo({
+          top: offsetPosition,
+          behavior: "smooth",
+        });
+
+        target.classList.add("contact-form-glow-highlight");
+        setTimeout(() => {
+          target.classList.remove("contact-form-glow-highlight");
+        }, 3000);
+      }
+    }, 250);
+
+    return () => clearTimeout(timer);
+  }, [location.pathname, location.search, location.hash]);
 
   return(
  

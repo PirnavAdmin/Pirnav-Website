@@ -7,7 +7,12 @@ export default defineConfig({
   server: {
     proxy: {
       "/api": {
-        target: "https://pirnav.com",
+        target: "http://localhost:5000",
+        changeOrigin: true,
+        secure: false,
+      },
+      "/uploads": {
+        target: "http://localhost:5000",
         changeOrigin: true,
         secure: false,
       },

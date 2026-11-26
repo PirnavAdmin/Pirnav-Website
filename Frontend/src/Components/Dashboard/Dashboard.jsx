@@ -1,6 +1,7 @@
 // src/pages/Dashboard.jsx
 import { Link } from "react-router-dom";
 import { useEffect, useRef, useState } from "react";
+import HomeUpcomingEvents from "../Events/HomeUpcomingEvents";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Autoplay, Pagination } from "swiper/modules";
 import {
@@ -582,6 +583,7 @@ Learn More About Pirnav
     </div>
   </div>
 </section>
+<HomeUpcomingEvents />
 {/* ================= WHY SECTION ================= */}
 {/* ================= COUNTER SECTION ================= */}
 

@@ -25,27 +25,58 @@ namespace Pirnav.API.Services
             string body,
             string? customSenderEmail = null,
             string? customSenderName = null,
-            string? customPassword = null)
+            string? customPassword = null,
+            string? plainTextBody = null,
+            string? replyToEmail = null)
         {
             try
             {
                 var smtp = await _awsSecretService.GetSmtpSettingsAsync();
 
+                var fromEmail = string.IsNullOrWhiteSpace(customSenderEmail)
+                    ? smtp.EMAIL_SENDER_EMAIL
+                    : customSenderEmail.Trim();
+                var fromName = string.IsNullOrWhiteSpace(customSenderName)
+                    ? smtp.EMAIL_SENDER_NAME
+                    : customSenderName.Trim();
+                var authEmail = smtp.EMAIL_SENDER_EMAIL;
+                var authPassword = string.IsNullOrWhiteSpace(customPassword)
+                    ? smtp.EMAIL_PASSWORD
+                    : customPassword;
+                if (!string.IsNullOrWhiteSpace(customPassword) && !string.IsNullOrWhiteSpace(customSenderEmail))
+                {
+                    authEmail = fromEmail;
+                }
+
                 var message = new MimeMessage();
 
-                message.From.Add(new MailboxAddress(
-                    smtp.EMAIL_SENDER_NAME,
-                    smtp.EMAIL_SENDER_EMAIL
-                ));
+                message.From.Add(new MailboxAddress(fromName, fromEmail));
+                if (!string.Equals(fromEmail, authEmail, StringComparison.OrdinalIgnoreCase))
+                {
+                    message.Sender = new MailboxAddress(smtp.EMAIL_SENDER_NAME, authEmail);
+                    message.ReplyTo.Add(new MailboxAddress(fromName, fromEmail));
+                }
+                else if (!string.IsNullOrWhiteSpace(replyToEmail))
+                {
+                    message.ReplyTo.Add(new MailboxAddress(fromName, replyToEmail.Trim()));
+                }
 
-                message.To.Add(new MailboxAddress("", toEmail.Trim()));
+                foreach (var recipient in toEmail.Split(new[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+                {
+                    message.To.Add(new MailboxAddress("", recipient));
+                }
 
                 message.Subject = subject;
 
-                message.Body = new TextPart("html")
+                var bodyBuilder = new BodyBuilder
                 {
-                    Text = body
+                    HtmlBody = body
                 };
+                if (!string.IsNullOrWhiteSpace(plainTextBody))
+                {
+                    bodyBuilder.TextBody = plainTextBody;
+                }
+                message.Body = bodyBuilder.ToMessageBody();
 
                 using var client = new SmtpClient();
 
@@ -56,8 +87,8 @@ namespace Pirnav.API.Services
                 );
 
                 await client.AuthenticateAsync(
-                    smtp.EMAIL_SENDER_EMAIL,
-                    smtp.EMAIL_PASSWORD
+                    authEmail,
+                    authPassword
                 );
 
                 await client.SendAsync(message);

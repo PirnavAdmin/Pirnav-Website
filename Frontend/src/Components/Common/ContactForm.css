@@ -1,5 +1,6 @@
 .shared-contact-form-shell {
   position: relative;
+  scroll-margin-top: 110px;
   padding: 1.25rem;
   border-radius: 1.75rem;
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(239, 248, 248, 0.96));
@@ -91,6 +92,7 @@
 }
 
 .shared-contact-field input,
+.shared-contact-field select,
 .shared-contact-field textarea {
   box-sizing: border-box;
   width: 100%;
@@ -111,6 +113,7 @@
 }
 
 .shared-contact-field input:focus,
+.shared-contact-field select:focus,
 .shared-contact-field textarea:focus {
   outline: none;
   border-color: var(--theme-primary);
@@ -178,10 +181,69 @@
   color: #17603a;
 }
 
+.status-success-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.98rem;
+  color: #13522f;
+}
+
+.status-success-icon {
+  color: #198754;
+  flex-shrink: 0;
+}
+
+.status-success-desc {
+  margin: 6px 0 8px;
+  line-height: 1.6;
+  color: #1d6139;
+  font-size: 0.88rem;
+}
+
+.status-success-direct {
+  font-size: 0.84rem;
+  color: #256a42;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.status-success-direct a {
+  font-weight: 800;
+  color: #0b7286;
+  text-decoration: underline;
+}
+
 .shared-contact-status-error {
   background: #fff2f1;
   border: 1px solid #efb4af;
   color: #ab3d48;
+}
+
+/* ================= FOCAL GLOW ANIMATION ================= */
+.contact-form-glow-highlight {
+  animation: formGlowPulse 2.8s ease-in-out forwards;
+}
+
+@keyframes formGlowPulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(11, 114, 134, 0.4);
+    border-color: rgba(11, 114, 134, 0.2);
+  }
+  30% {
+    box-shadow: 0 0 0 12px rgba(11, 114, 134, 0.2), 0 20px 40px rgba(11, 114, 134, 0.24);
+    border-color: #0b7286;
+  }
+  70% {
+    box-shadow: 0 0 0 6px rgba(11, 114, 134, 0.12), 0 16px 32px rgba(11, 114, 134, 0.16);
+    border-color: #0b7286;
+  }
+  100% {
+    box-shadow: var(--shadow-soft);
+    border-color: rgba(11, 114, 134, 0.12);
+  }
 }
 
 @media (max-width: 720px) {
@@ -193,4 +255,229 @@
   .shared-contact-grid-two {
     grid-template-columns: 1fr;
   }
+
+  .demo-selected-product-banner {
+    flex-wrap: wrap;
+  }
+}
+
+/* ================= DEMO SELECTED PRODUCT BANNER (PROJECT THEME COLORS) ================= */
+.demo-selected-product-banner {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.8rem 1rem;
+  border-radius: 1rem;
+  background: #eef8fa;
+  border: 1px solid rgba(11, 114, 134, 0.22);
+}
+
+.demo-selected-product-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #0b7286, #0793a8);
+  color: #ffffff;
+  flex-shrink: 0;
+}
+
+.demo-selected-product-copy {
+  display: grid;
+  gap: 1px;
+  min-width: 0;
+  flex: 1;
+}
+
+.demo-selected-product-copy small {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #0b7286;
+}
+
+.demo-selected-product-copy strong {
+  font-size: 0.94rem;
+  color: #0b1f2b;
+  overflow-wrap: anywhere;
+}
+
+.demo-selected-product-badge {
+  padding: 0.3rem 0.75rem;
+  border-radius: 999px;
+  background: #ffffff;
+  border: 1px solid rgba(11, 114, 134, 0.2);
+  color: #0b7286;
+  font-size: 0.75rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.optional-label {
+  font-style: normal;
+  font-weight: 500;
+  font-size: 0.82rem;
+  color: #526879;
+}
+
+.demo-consent-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  font-size: 0.85rem;
+  line-height: 1.45;
+  color: #334b5d;
+  cursor: pointer;
+}
+
+.demo-consent-row input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  margin-top: 2px;
+  accent-color: #0b7286;
+  flex-shrink: 0;
+}
+
+.demo-consent-row a {
+  color: #0b7286;
+  font-weight: 700;
+  text-decoration: underline;
+}
+
+.demo-consent-error {
+  color: #b42332;
+  font-size: 0.8rem;
+  font-weight: 600;
+  margin-top: -0.3rem;
+}
+
+.demo-confirmation-card {
+  margin-top: 1rem;
+  padding: 1.25rem;
+  border-radius: 1.25rem;
+  background: #eef8fa;
+  border: 1px solid rgba(11, 114, 134, 0.22);
+  display: grid;
+  gap: 1rem;
+}
+
+.demo-confirmation-head {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+.demo-confirmation-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #0b7286, #0aa7b8);
+  color: #ffffff;
+  flex-shrink: 0;
+}
+
+.demo-confirmation-head strong {
+  display: block;
+  font-size: 1.05rem;
+  color: #0b1f2b;
+}
+
+.demo-confirmation-head p {
+  margin: 2px 0 0;
+  font-size: 0.88rem;
+  color: #526879;
+}
+
+.demo-confirmation-ref-box {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 0.85rem 1rem;
+  border-radius: 0.9rem;
+  background: #ffffff;
+  border: 1px dashed rgba(11, 114, 134, 0.35);
+}
+
+.demo-confirmation-ref-box small {
+  display: block;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #526879;
+  font-weight: 700;
+}
+
+.demo-confirmation-ref-box strong {
+  font-size: 1.08rem;
+  color: #0b7286;
+  letter-spacing: 0.02em;
+}
+
+.demo-copy-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0.45rem 0.85rem;
+  border-radius: 999px;
+  border: 1px solid rgba(11, 114, 134, 0.24);
+  background: #eef8fa;
+  color: #0b7286;
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.demo-confirmation-steps p {
+  margin: 0 0 6px;
+  font-size: 0.88rem;
+  line-height: 1.55;
+  color: #1f3647;
+}
+
+.demo-confirmation-steps span {
+  font-weight: 700;
+  color: #0b7286;
+}
+
+.demo-confirmation-contact a {
+  color: #0b7286;
+  font-weight: 700;
+}
+
+.demo-confirmation-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.demo-primary-action {
+  padding: 0.7rem 1.25rem;
+  border: none;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #0b7286, #3eb3c4);
+  color: #ffffff;
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.demo-secondary-link {
+  padding: 0.65rem 1.15rem;
+  border-radius: 999px;
+  border: 1px solid rgba(11, 114, 134, 0.24);
+  background: #ffffff;
+  color: #0b7286;
+  font-size: 0.9rem;
+  font-weight: 700;
+  text-decoration: none;
 }
