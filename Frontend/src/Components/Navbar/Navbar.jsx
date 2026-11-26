@@ -5,7 +5,7 @@ import {
   Users,
   Briefcase,
   Package,
-  CalendarDays,
+  // CalendarDays,
   UserPlus,
   Phone,
   Code2,
@@ -51,7 +51,7 @@ const Navbar = () => {
   const [isServicesMenuOpen, setIsServicesMenuOpen] = useState(false);
   const isServicesRoute = location.pathname.startsWith("/services");
   const isProductsRoute = location.pathname.startsWith("/products");
-  const isEventsRoute = location.pathname.startsWith("/events");
+  // const isEventsRoute = location.pathname.startsWith("/events");
 
   useEffect(() => {
     const handleScroll = () => {
@@ -196,6 +196,7 @@ const Navbar = () => {
             <Package size={18} /> Our Products
           </NavLink>
 
+          {/* Temporarily hidden for demo; uncomment to re-enable Events
           <NavLink
             to="/events"
             className={isEventsRoute ? "nav-item-active" : ""}
@@ -203,6 +204,7 @@ const Navbar = () => {
           >
             <CalendarDays size={18} /> Events
           </NavLink>
+          */}
 
           <NavLink to="/careers" className={({ isActive }) => (isActive ? "nav-item-active" : "")} onClick={() => handleLinkClick("/careers")}>
             <UserPlus size={18}/> Careers

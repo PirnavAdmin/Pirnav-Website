@@ -14,7 +14,6 @@ import {
   ShieldCheck,
   Sparkles,
   Users,
-  Utensils,
 } from "lucide-react";
 import "./Products.css";
 
@@ -119,26 +118,6 @@ export const productCatalog = [
       "Team Collaboration & Audit Logs",
     ],
   },
-  {
-    id: "avsr-food-court",
-    category: "Hospitality & Dining",
-    filterCategory: "travel",
-    title: "AVSR Food Court — Restaurant Table Billing & POS",
-    shortLabel: "Restaurant POS",
-    statusLabel: "Live Instance",
-    logoText: "AVSR",
-    description:
-      "A dedicated restaurant point-of-sale (POS) and table billing management suite tailored for food courts and dining establishments. Powers visual table occupancy matrix tracking, live kitchen order ticketing (KOT), multi-counter digital menu ordering, split billing, and fast POS payment checkout settlement.",
-    deployedUrl: "http://65.0.8.48:3000/",
-    accent: "from-amber",
-    icon: Utensils,
-    features: [
-      "Table Matrix & Dynamic Billing",
-      "Live Kitchen Order Ticketing (KOT)",
-      "Digital Menu & Quick Orders",
-      "Integrated Payment Settlement",
-    ],
-  },
 ];
 
 const filterCategories = [
@@ -146,7 +125,6 @@ const filterCategories = [
   { id: "enterprise", label: "Enterprise & HRMS" },
   { id: "health", label: "Healthcare" },
   { id: "education", label: "Education & EdTech" },
-  { id: "travel", label: "Travel & Hospitality" },
 ];
 
 const deliveryPoints = [

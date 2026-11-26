@@ -12,7 +12,7 @@ const navLinks = [
   { label: "Who We Are", to: "/about" },
   { label: "What We Do", to: "/services" },
   { label: "Our Products", to: "/products" },
-  { label: "Events", to: "/events" },
+  // { label: "Events", to: "/events" },
   { label: "Careers", to: "/careers" },
   { label: "Get In Touch", to: "/contact#get-in-touch" },
 ];

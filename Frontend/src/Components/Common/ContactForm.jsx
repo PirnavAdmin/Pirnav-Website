@@ -62,14 +62,6 @@ export const PIRNAV_PRODUCTS = [
     deployedUrl: "https://curecode.site/",
     badge: "QA Suite",
   },
-  {
-    id: "avsr-food-court",
-    shortName: "AVSR Food Court",
-    title: "AVSR Food Court — Restaurant Table Billing & POS",
-    category: "Hospitality & Dining",
-    deployedUrl: "http://65.0.8.48:3000/",
-    badge: "Food Court POS",
-  },
 ];
 
 const defaultContactValues = {

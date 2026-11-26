@@ -10,8 +10,7 @@ namespace Pirnav.API.Services
             new("pulseleef", "PulseLeef", "PulseLeef — Healthcare & Clinical Suite", "Healthcare & Medical"),
             new("pupil-scholar", "Pupil Scholar", "Pupil Scholar — Education & Campus ERP", "Education & Campus ERP"),
             new("kini-edx", "KINI", "Kini — KiniEdx Learning Platform", "EdTech & Learning"),
-            new("curecode-bug-tracker", "CureCode", "CureCode — Agile Bug Tracker & QA Suite", "Developer Tools & QA"),
-            new("avsr-food-court", "AVSR Food Court", "AVSR Food Court — Restaurant Table Billing & POS", "Hospitality & Dining")
+            new("curecode-bug-tracker", "CureCode", "CureCode — Agile Bug Tracker & QA Suite", "Developer Tools & QA")
         };
 
         private static readonly Dictionary<string, string> Aliases = new(StringComparer.OrdinalIgnoreCase)
@@ -19,8 +18,7 @@ namespace Pirnav.API.Services
             ["kini"] = "kini-edx",
             ["kiniedx"] = "kini-edx",
             ["curecode"] = "curecode-bug-tracker",
-            ["pupil"] = "pupil-scholar",
-            ["avsr"] = "avsr-food-court"
+            ["pupil"] = "pupil-scholar"
         };
 
         public static readonly IReadOnlyList<string> ValidStatuses = new[]
