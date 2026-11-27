@@ -251,7 +251,7 @@
   position: relative;
   min-height: 260px;
   border-radius: 30px;
-  overflow: visible;
+  overflow: hidden;
   box-shadow: none;
   transition: transform 0.35s ease, box-shadow 0.35s ease;
   animation: productMediaFloat 8s ease-in-out infinite;
@@ -286,9 +286,10 @@
   border: 1px solid rgba(255, 255, 255, 0.18);
   color: #ffffff;
   font-size: 11px;
-  letter-spacing: 0.14em;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
   font-weight: 700;
+  white-space: nowrap;
   backdrop-filter: blur(10px);
 }
 
@@ -302,6 +303,7 @@
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
+  white-space: nowrap;
   backdrop-filter: blur(10px);
 }
 
@@ -637,6 +639,10 @@ a.product-card-media {
   cursor: pointer;
   color: inherit;
   overflow: hidden;
+}
+
+div.product-card-media {
+  cursor: default;
 }
 
 .product-card-hover-banner {
@@ -3137,4 +3143,69 @@ a.product-card-media {
     animation: none !important;
     transition: none !important;
   }
+}
+
+.product-edition-box {
+  margin: 0 0 14px;
+  padding: 12px 14px;
+  border-radius: 16px;
+  background: #f4f9fc;
+  border: 1px solid #d8e8f1;
+}
+
+.product-edition-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+
+.product-edition-caption {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #0b7286;
+}
+
+.product-edition-tagline {
+  font-size: 12px;
+  font-weight: 600;
+  color: #466074;
+}
+
+.product-edition-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.product-edition-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border-radius: 999px;
+  border: 1px solid #c9dce7;
+  background: #ffffff;
+  color: #1c364d;
+  font-size: 12.5px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.product-edition-tab:hover {
+  border-color: #0b7286;
+  color: #0b7286;
+  background: #eef8fa;
+}
+
+.product-edition-tab.active {
+  background: linear-gradient(135deg, #0b7286, #0793a8);
+  border-color: #0b7286;
+  color: #ffffff;
+  box-shadow: 0 6px 16px rgba(11, 114, 134, 0.24);
 }

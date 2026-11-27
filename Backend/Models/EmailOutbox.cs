@@ -27,11 +27,6 @@ namespace Pirnav.API.Models
         [JsonIgnore]
         public DemoRequest? RelatedDemoRequest { get; set; }
 
-        public int? RelatedEventRegistrationId { get; set; }
-
-        [JsonIgnore]
-        public EventRegistration? RelatedEventRegistration { get; set; }
-
         public string DeliveryStatus { get; set; } = "Pending";
 
         public int AttemptCount { get; set; } = 0;

@@ -146,16 +146,6 @@ builder.Services.AddRateLimiter(options =>
                 QueueLimit = 0
             }));
 
-    options.AddPolicy("eventRegisterLimiter", httpContext =>
-        RateLimitPartition.GetFixedWindowLimiter(
-            httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown",
-            _ => new FixedWindowRateLimiterOptions
-            {
-                PermitLimit = 10,
-                Window = TimeSpan.FromHours(1),
-                QueueLimit = 0
-            }));
-
     options.RejectionStatusCode = 429;
 });
 
@@ -180,8 +170,6 @@ builder.Services.AddScoped<ChatService>();
 builder.Services.AddScoped<EmailService>();
 
 builder.Services.AddScoped<DemoService>();
-
-builder.Services.AddScoped<EventService>();
 
 builder.Services.AddHostedService<DemoEmailOutboxWorker>();
 

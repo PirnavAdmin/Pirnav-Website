@@ -1,417 +1,415 @@
-import React, { useEffect, useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   ArrowRight,
   CalendarDays,
-  Clock3,
-  Image as ImageIcon,
-  MapPin,
-  PlayCircle,
-  Search,
-  Sparkles,
-  Users,
-  Video,
+  ChevronLeft,
+  ChevronRight,
+  Flame,
+  Images,
+  Trophy,
+  Utensils,
+  X,
 } from "lucide-react";
-import { buildApiUrl } from "../../config/api";
-import EventBannerMedia from "./EventBannerMedia";
 import {
-  EVENT_CATEGORIES,
-  formatEventDate,
-  formatEventDateTime,
-} from "./eventHelpers";
+  EVENTS_HERO_IMAGE,
+  getSortedOfficeEvents,
+} from "./eventsData";
 import "./Events.css";
 
+const renderEventIcon = (iconKey) => {
+  switch (iconKey) {
+    case "cricket":
+      return <Trophy size={18} aria-hidden="true" />;
+    case "potluck":
+      return <Utensils size={18} aria-hidden="true" />;
+    case "traditional":
+      return <Flame size={18} aria-hidden="true" />;
+    default:
+      return <CalendarDays size={18} aria-hidden="true" />;
+  }
+};
+
 const Events = () => {
-  const [events, setEvents] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("All");
-  const [searchTerm, setSearchTerm] = useState("");
+  const sortedEvents = useMemo(() => getSortedOfficeEvents(), []);
+  const prefersReducedMotion =
+    typeof window !== "undefined" &&
+    Boolean(window.matchMedia?.("(prefers-reduced-motion: reduce)").matches);
 
-  useEffect(() => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  }, []);
-
-  useEffect(() => {
-    let active = true;
-    const fetchEvents = async () => {
-      setLoading(true);
-      setError("");
-      try {
-        const res = await fetch(buildApiUrl("Events?type=all"), {
-          headers: { "ngrok-skip-browser-warning": "true" },
-        });
-        if (!res.ok) {
-          throw new Error("Unable to load events right now.");
-        }
-        const data = await res.json();
-        if (active) {
-          setEvents(Array.isArray(data) ? data : []);
-        }
-      } catch (err) {
-        if (active) {
-          setError(err?.message || "Failed to fetch events.");
-        }
-      } finally {
-        if (active) setLoading(false);
-      }
-    };
-    fetchEvents();
-    return () => {
-      active = false;
-    };
-  }, []);
-
-  const { upcomingEvents, pastEvents, featuredEvent } = useMemo(() => {
-    const query = searchTerm.trim().toLowerCase();
-    const matchesFilters = (ev) => {
-      if (selectedCategory !== "All" && ev.category !== selectedCategory) {
-        return false;
-      }
-      if (!query) return true;
-      return (
-        ev.title?.toLowerCase().includes(query) ||
-        ev.shortDescription?.toLowerCase().includes(query) ||
-        ev.category?.toLowerCase().includes(query) ||
-        ev.locationOrPlatform?.toLowerCase().includes(query)
-      );
-    };
-
-    const allUpcoming = events
-      .filter((e) => !e.isPast)
-      .sort((a, b) => new Date(a.startDateTime) - new Date(b.startDateTime));
-
-    const allPast = events
-      .filter((e) => e.isPast)
-      .sort((a, b) => new Date(b.startDateTime) - new Date(a.startDateTime));
-
-    const heroFeatured =
-      allUpcoming.find((e) => e.isFeatured) ||
-      allUpcoming[0] ||
-      allPast[0] ||
-      null;
-
-    return {
-      upcomingEvents: allUpcoming.filter(matchesFilters),
-      pastEvents: allPast.filter(matchesFilters),
-      featuredEvent: heroFeatured,
-    };
-  }, [events, selectedCategory, searchTerm]);
-
-  const totalUpcomingCount = useMemo(
-    () => events.filter((e) => !e.isPast).length,
-    [events]
+  const [visibleIds, setVisibleIds] = useState(() =>
+    prefersReducedMotion || typeof IntersectionObserver === "undefined"
+      ? new Set(sortedEvents.map((ev) => ev.id))
+      : new Set()
   );
-  const totalPastCount = useMemo(
-    () => events.filter((e) => e.isPast).length,
-    [events]
-  );
+  const [activeIndex, setActiveIndex] = useState(0);
 
-  const getUpcomingCtaLabel = (ev) => {
-    if (!ev.isRegistrationOpen) return "Registration Closed";
-    if (ev.maxAttendees && ev.registeredCount >= ev.maxAttendees) {
-      return "Capacity Full";
+  const [galleryEvent, setGalleryEvent] = useState(null);
+  const [photoIndex, setPhotoIndex] = useState(0);
+
+  const cardRefs = useRef([]);
+  const closeBtnRef = useRef(null);
+  const dialogRef = useRef(null);
+  const lastTriggerRef = useRef(null);
+  const touchStartXRef = useRef(null);
+
+  // Scroll-reveal & timeline progression observer
+  useEffect(() => {
+    if (prefersReducedMotion || typeof IntersectionObserver === "undefined") {
+      return undefined;
     }
-    return "Register Now";
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          const eventId = entry.target.getAttribute("data-event-id");
+          const indexAttr = Number(entry.target.getAttribute("data-event-index"));
+          if (entry.isIntersecting && eventId) {
+            setVisibleIds((prev) => {
+              if (prev.has(eventId)) return prev;
+              const next = new Set(prev);
+              next.add(eventId);
+              return next;
+            });
+            if (!Number.isNaN(indexAttr)) {
+              setActiveIndex((prev) => Math.max(prev, indexAttr));
+            }
+          }
+        });
+      },
+      { threshold: 0.2, rootMargin: "0px 0px -40px 0px" }
+    );
+
+    cardRefs.current.forEach((node) => {
+      if (node) observer.observe(node);
+    });
+
+    return () => observer.disconnect();
+  }, [prefersReducedMotion]);
+
+  const openGallery = useCallback((eventItem, triggerElement, startIdx = 0) => {
+    lastTriggerRef.current = triggerElement || document.activeElement;
+    setGalleryEvent(eventItem);
+    setPhotoIndex(startIdx);
+  }, []);
+
+  const closeGallery = useCallback(() => {
+    setGalleryEvent(null);
+    setPhotoIndex(0);
+    window.requestAnimationFrame(() => {
+      if (lastTriggerRef.current && typeof lastTriggerRef.current.focus === "function") {
+        lastTriggerRef.current.focus();
+      }
+    });
+  }, []);
+
+  const showPrevPhoto = useCallback(() => {
+    if (!galleryEvent?.galleryImages?.length) return;
+    setPhotoIndex((prev) =>
+      prev === 0 ? galleryEvent.galleryImages.length - 1 : prev - 1
+    );
+  }, [galleryEvent]);
+
+  const showNextPhoto = useCallback(() => {
+    if (!galleryEvent?.galleryImages?.length) return;
+    setPhotoIndex((prev) =>
+      prev === galleryEvent.galleryImages.length - 1 ? 0 : prev + 1
+    );
+  }, [galleryEvent]);
+
+  // Lock background scroll, manage initial focus, keyboard nav, and focus trap
+  useEffect(() => {
+    if (!galleryEvent) return undefined;
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    closeBtnRef.current?.focus();
+
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape") {
+        e.preventDefault();
+        closeGallery();
+        return;
+      }
+      if (e.key === "ArrowLeft") {
+        e.preventDefault();
+        showPrevPhoto();
+        return;
+      }
+      if (e.key === "ArrowRight") {
+        e.preventDefault();
+        showNextPhoto();
+        return;
+      }
+      if (e.key === "Tab" && dialogRef.current) {
+        const focusable = dialogRef.current.querySelectorAll(
+          'button:not([disabled]), [href], [tabindex]:not([tabindex="-1"])'
+        );
+        if (!focusable.length) return;
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [galleryEvent, closeGallery, showPrevPhoto, showNextPhoto]);
+
+  const handleTouchStart = (e) => {
+    touchStartXRef.current = e.changedTouches?.[0]?.clientX ?? null;
   };
 
+  const handleTouchEnd = (e) => {
+    if (touchStartXRef.current === null) return;
+    const endX = e.changedTouches?.[0]?.clientX ?? touchStartXRef.current;
+    const delta = endX - touchStartXRef.current;
+    touchStartXRef.current = null;
+    if (Math.abs(delta) >= 45) {
+      if (delta > 0) showPrevPhoto();
+      else showNextPhoto();
+    }
+  };
+
+  const progressPct =
+    sortedEvents.length > 1
+      ? Math.round(((activeIndex + 1) / sortedEvents.length) * 100)
+      : 100;
+
+  const activePhoto = galleryEvent?.galleryImages?.[photoIndex] || null;
+
   return (
-    <div className="events-page">
+    <div className="office-events-page">
       {/* ================= HERO SECTION ================= */}
-      <section className="events-hero">
-        <div className="events-hero-shell">
-          <div className="events-hero-copy">
-            <span className="events-kicker">
-              <Sparkles size={14} /> Upcoming Events
-            </span>
-            <h1>Discover what&apos;s happening at PIRNAV</h1>
-            <p className="events-hero-subtitle">
-              Join our engineering leaders, product architects, and community for
-              live webinars, hands-on full-stack workshops, conferences, product
-              launches, and campus tech sessions.
-            </p>
+      <section className="office-events-hero" aria-labelledby="office-events-hero-title">
+        <div className="office-events-hero-bg" aria-hidden="true">
+          <img
+            src={EVENTS_HERO_IMAGE.src}
+            alt={EVENTS_HERO_IMAGE.alt}
+            decoding="async"
+          />
+        </div>
+        <div className="office-events-hero-overlay" aria-hidden="true" />
 
-            <div className="events-hero-stats">
-              <div className="events-hero-stat">
-                <strong>{totalUpcomingCount}</strong>
-                <span>Upcoming Events</span>
-              </div>
-              <div className="events-hero-stat">
-                <strong>{totalPastCount}</strong>
-                <span>Past Highlights</span>
-              </div>
-              <div className="events-hero-stat">
-                <strong>{EVENT_CATEGORIES.length}</strong>
-                <span>Event Tracks</span>
-              </div>
-            </div>
-          </div>
-
-          {featuredEvent && (
-            <article className="events-featured-card">
-              <EventBannerMedia
-                bannerImageUrl={featuredEvent.bannerImageUrl}
-                title={featuredEvent.title}
-                category={featuredEvent.category}
-                eventMode={featuredEvent.eventMode}
-                isPast={featuredEvent.isPast}
-              />
-              <div className="events-featured-body">
-                <div className="events-featured-top">
-                  <span className="events-featured-pill">
-                    {featuredEvent.isPast ? "Featured Past Event" : "Featured Event"} •{" "}
-                    {featuredEvent.category}
-                  </span>
-                  <span style={{ fontSize: "0.8rem", color: "#526879", fontWeight: 600 }}>
-                    {formatEventDate(featuredEvent.startDateTime)}
-                  </span>
-                </div>
-                <h2>{featuredEvent.title}</h2>
-                <p>{featuredEvent.shortDescription}</p>
-                <div className="events-featured-actions">
-                  {!featuredEvent.isPast ? (
-                    <Link
-                      to={`/events/${featuredEvent.slug}?register=1`}
-                      className="event-btn-primary"
-                    >
-                      {getUpcomingCtaLabel(featuredEvent)} <ArrowRight size={15} />
-                    </Link>
-                  ) : (
-                    <Link
-                      to={`/events/${featuredEvent.slug}#highlights`}
-                      className="event-btn-primary"
-                    >
-                      View Highlights <ArrowRight size={15} />
-                    </Link>
-                  )}
-                  <Link
-                    to={`/events/${featuredEvent.slug}`}
-                    className="event-btn-secondary"
-                  >
-                    Event Details
-                  </Link>
-                </div>
-              </div>
-            </article>
-          )}
+        <div className="office-events-hero-content">
+          <span className="office-events-eyebrow">COMPANY EVENTS</span>
+          <h1 id="office-events-hero-title">Events</h1>
+          <p className="office-events-hero-desc">
+            Relive the moments from our office events and celebrations at PIRNAV.
+          </p>
         </div>
       </section>
 
-      {/* ================= MAIN CONTENT ================= */}
-      <div className="events-container">
-        {/* Category & Search Toolbar */}
-        <div className="events-toolbar" role="region" aria-label="Event filters">
-          <div className="events-category-tabs">
-            {["All", ...EVENT_CATEGORIES].map((cat) => (
-              <button
-                key={cat}
-                type="button"
-                className={`events-cat-tab ${selectedCategory === cat ? "active" : ""}`}
-                onClick={() => setSelectedCategory(cat)}
-              >
-                {cat}
-              </button>
-            ))}
+      {/* ================= OFFICE EVENTS TIMELINE ================= */}
+      <section className="office-timeline-section" aria-labelledby="timeline-section-heading">
+        <div className="office-timeline-layout">
+          {/* Left Sticky Column (~25%) */}
+          <div className="office-timeline-intro">
+            <span className="office-timeline-bar" aria-hidden="true" />
+            <h2 id="timeline-section-heading">
+              Our <span>Office Events</span> Timeline
+            </h2>
+            <p>
+              A look back at the exciting events, team bonding activities and
+              celebrations that bring the PIRNAV family closer together.
+            </p>
           </div>
 
-          <div className="events-search-box">
-            <Search size={16} />
-            <input
-              type="search"
-              placeholder="Search events, topics, location..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              aria-label="Search events"
-            />
+          {/* Right Vertical Timeline (~75%) */}
+          <div className="office-timeline-track">
+            <div className="office-timeline-spine" aria-hidden="true">
+              <span
+                className="office-timeline-spine-fill"
+                style={{ height: `${progressPct}%` }}
+              />
+            </div>
+
+            {sortedEvents.map((ev, index) => {
+              const photoCount = Array.isArray(ev.galleryImages)
+                ? ev.galleryImages.length
+                : 0;
+              const isVisible = visibleIds.has(ev.id);
+              const isActive = index <= activeIndex;
+
+              return (
+                <div
+                  key={ev.id}
+                  ref={(el) => {
+                    cardRefs.current[index] = el;
+                  }}
+                  data-event-id={ev.id}
+                  data-event-index={index}
+                  className={`office-timeline-row ${isVisible ? "is-visible" : ""} ${
+                    isActive ? "is-active" : ""
+                  }`}
+                >
+                  <span
+                    className={`office-timeline-node ${
+                      ev.accent === "teal" ? "accent-teal" : "accent-orange"
+                    }`}
+                    aria-hidden="true"
+                  />
+
+                  <article className="office-event-card">
+                    {/* Clickable Cover Image */}
+                    <button
+                      type="button"
+                      className="office-event-media-btn"
+                      onClick={(e) => openGallery(ev, e.currentTarget, 0)}
+                      aria-label={`Open photo gallery for ${ev.title}`}
+                    >
+                      <img
+                        src={ev.coverImage?.src}
+                        alt={ev.coverImage?.alt || ev.title}
+                        loading={index === 0 ? "eager" : "lazy"}
+                        decoding="async"
+                      />
+                    </button>
+
+                    {/* Content */}
+                    <div className="office-event-body">
+                      <div className="office-event-heading">
+                        <span className="office-event-icon-badge">
+                          {renderEventIcon(ev.icon)}
+                        </span>
+                        <h3>{ev.title}</h3>
+                      </div>
+
+                      <p>{ev.description}</p>
+
+                      <div className="office-event-actions">
+                        <button
+                          type="button"
+                          className="office-view-photos-btn"
+                          onClick={(e) => openGallery(ev, e.currentTarget, 0)}
+                        >
+                          <span>View Photos</span>
+                          <ArrowRight size={15} aria-hidden="true" />
+                        </button>
+
+                        <span className="office-photo-count-pill">
+                          <Images size={15} aria-hidden="true" />
+                          <span>
+                            {photoCount} {photoCount === 1 ? "Photo" : "Photos"}
+                          </span>
+                        </span>
+                      </div>
+                    </div>
+                  </article>
+                </div>
+              );
+            })}
           </div>
         </div>
+      </section>
 
-        {loading && (
-          <div className="events-empty-box">
-            <h3>Loading PIRNAV Events...</h3>
-            <p>Fetching upcoming sessions and past event highlights.</p>
-          </div>
-        )}
-
-        {!loading && error && (
-          <div className="events-empty-box">
-            <h3>Could not load events</h3>
-            <p>{error}</p>
-          </div>
-        )}
-
-        {!loading && !error && (
-          <>
-            {/* ================= UPCOMING EVENTS ================= */}
-            <section className="events-section" aria-labelledby="upcoming-events-heading">
-              <div className="events-section-header">
-                <div>
-                  <span className="events-section-eyebrow">Live Schedule</span>
-                  <h2 id="upcoming-events-heading">Upcoming Events</h2>
-                  <p>Reserve your seat for upcoming sessions, launches, and workshops.</p>
-                </div>
-                <span className="events-count-pill">
-                  {upcomingEvents.length} {upcomingEvents.length === 1 ? "Event" : "Events"}
+      {/* ================= INTERACTIVE PHOTO GALLERY MODAL ================= */}
+      {galleryEvent && activePhoto && (
+        <div
+          className="office-gallery-backdrop"
+          onClick={closeGallery}
+          role="presentation"
+        >
+          <div
+            ref={dialogRef}
+            className="office-gallery-dialog"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="office-gallery-title"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="office-gallery-header">
+              <div className="office-gallery-title-wrap">
+                <h2 id="office-gallery-title">{galleryEvent.title}</h2>
+                <span className="office-gallery-counter">
+                  Photo {photoIndex + 1} of {galleryEvent.galleryImages.length}
                 </span>
               </div>
 
-              {upcomingEvents.length === 0 ? (
-                <div className="events-empty-box">
-                  <h3>No upcoming events match this filter</h3>
-                  <p>
-                    Try switching categories or clearing your search query to view all scheduled events.
-                  </p>
-                </div>
-              ) : (
-                <div className="events-grid">
-                  {upcomingEvents.map((ev) => {
-                    const isClosedOrFull =
-                      !ev.isRegistrationOpen ||
-                      (ev.maxAttendees && ev.registeredCount >= ev.maxAttendees);
+              <button
+                ref={closeBtnRef}
+                type="button"
+                className="office-gallery-close-btn"
+                onClick={closeGallery}
+                aria-label="Close photo gallery"
+              >
+                <X size={18} aria-hidden="true" />
+              </button>
+            </div>
 
-                    return (
-                      <article key={ev.id} className="event-card">
-                        <Link to={`/events/${ev.slug}`} style={{ textDecoration: "none" }}>
-                          <EventBannerMedia
-                            bannerImageUrl={ev.bannerImageUrl}
-                            title={ev.title}
-                            category={ev.category}
-                            eventMode={ev.eventMode}
-                          />
-                        </Link>
-                        <div className="event-card-body">
-                          <span className="event-card-category">{ev.category}</span>
-                          <h3 className="event-card-title">
-                            <Link to={`/events/${ev.slug}`}>{ev.title}</Link>
-                          </h3>
-                          <p className="event-card-desc">{ev.shortDescription}</p>
-
-                          <div className="event-card-meta">
-                            <div className="event-meta-row">
-                              <Clock3 size={14} />
-                              <span>
-                                {formatEventDateTime(ev.startDateTime, ev.endDateTime, ev.timezone)}
-                              </span>
-                            </div>
-                            <div className="event-meta-row">
-                              {ev.eventMode === "Online" ? <Video size={14} /> : <MapPin size={14} />}
-                              <span>{ev.locationOrPlatform}</span>
-                            </div>
-                            {ev.maxAttendees ? (
-                              <div className="event-meta-row">
-                                <Users size={14} />
-                                <span>
-                                  {Math.max(0, ev.maxAttendees - ev.registeredCount)} of{" "}
-                                  {ev.maxAttendees} spots remaining
-                                </span>
-                              </div>
-                            ) : null}
-                          </div>
-
-                          <div className="event-card-actions">
-                            <Link
-                              to={`/events/${ev.slug}${isClosedOrFull ? "" : "?register=1"}`}
-                              className="event-btn-primary"
-                            >
-                              {getUpcomingCtaLabel(ev)} <ArrowRight size={15} />
-                            </Link>
-                            <Link to={`/events/${ev.slug}`} className="event-btn-secondary">
-                              Details
-                            </Link>
-                          </div>
-                        </div>
-                      </article>
-                    );
-                  })}
-                </div>
-              )}
-            </section>
-
-            {/* ================= PAST EVENTS ================= */}
-            <section
-              className="events-section events-past-divider"
-              aria-labelledby="past-events-heading"
+            <div
+              className="office-gallery-stage"
+              onTouchStart={handleTouchStart}
+              onTouchEnd={handleTouchEnd}
             >
-              <div className="events-section-header">
-                <div>
-                  <span className="events-section-eyebrow">Archive &amp; Highlights</span>
-                  <h2 id="past-events-heading">Past Events</h2>
-                  <p>
-                    Explore previous event summaries, photo galleries, key takeaways, and recorded sessions.
-                  </p>
-                </div>
-                <span className="events-count-pill">
-                  {pastEvents.length} {pastEvents.length === 1 ? "Past Event" : "Past Events"}
-                </span>
-              </div>
-
-              {pastEvents.length === 0 ? (
-                <div className="events-empty-box">
-                  <h3>No past events match this filter</h3>
-                  <p>Past event highlights and galleries will appear here after sessions conclude.</p>
-                </div>
-              ) : (
-                <div className="events-grid">
-                  {pastEvents.map((ev) => (
-                    <article key={ev.id} className="event-card">
-                      <Link to={`/events/${ev.slug}#highlights`} style={{ textDecoration: "none" }}>
-                        <EventBannerMedia
-                          bannerImageUrl={ev.bannerImageUrl}
-                          title={ev.title}
-                          category={ev.category}
-                          eventMode={ev.eventMode}
-                          isPast
-                        />
-                      </Link>
-                      <div className="event-card-body">
-                        <span className="event-card-category past">{ev.category}</span>
-                        <h3 className="event-card-title">
-                          <Link to={`/events/${ev.slug}#highlights`}>{ev.title}</Link>
-                        </h3>
-                        <p className="event-card-desc">
-                          {ev.highlightsSummary || ev.shortDescription}
-                        </p>
-
-                        <div className="event-card-meta">
-                          <div className="event-meta-row">
-                            <CalendarDays size={14} />
-                            <span>Held on {formatEventDate(ev.startDateTime)}</span>
-                          </div>
-                          <div className="event-meta-row">
-                            <ImageIcon size={14} />
-                            <span>
-                              {ev.galleryCount || 0} Gallery{" "}
-                              {ev.galleryCount === 1 ? "Item" : "Items"}
-                              {ev.recordingUrl ? " • Recording Available" : ""}
-                            </span>
-                          </div>
-                        </div>
-
-                        <div className="event-card-actions">
-                          <Link
-                            to={`/events/${ev.slug}#highlights`}
-                            className="event-btn-primary"
-                          >
-                            {ev.recordingUrl ? (
-                              <>
-                                <PlayCircle size={15} /> View Highlights &amp; Recording
-                              </>
-                            ) : (
-                              <>
-                                View Highlights <ArrowRight size={15} />
-                              </>
-                            )}
-                          </Link>
-                        </div>
-                      </div>
-                    </article>
-                  ))}
-                </div>
+              {galleryEvent.galleryImages.length > 1 && (
+                <button
+                  type="button"
+                  className="office-gallery-nav-btn prev"
+                  onClick={showPrevPhoto}
+                  aria-label="Previous photo"
+                >
+                  <ChevronLeft size={22} aria-hidden="true" />
+                </button>
               )}
-            </section>
-          </>
-        )}
-      </div>
+
+              <img
+                key={activePhoto.src}
+                src={activePhoto.src}
+                alt={activePhoto.alt}
+                className="office-gallery-main-img"
+              />
+
+              {galleryEvent.galleryImages.length > 1 && (
+                <button
+                  type="button"
+                  className="office-gallery-nav-btn next"
+                  onClick={showNextPhoto}
+                  aria-label="Next photo"
+                >
+                  <ChevronRight size={22} aria-hidden="true" />
+                </button>
+              )}
+            </div>
+
+            {activePhoto.caption && (
+              <div className="office-gallery-caption">{activePhoto.caption}</div>
+            )}
+
+            {galleryEvent.galleryImages.length > 1 && (
+              <div
+                className="office-gallery-thumbs"
+                role="tablist"
+                aria-label={`${galleryEvent.title} thumbnails`}
+              >
+                {galleryEvent.galleryImages.map((imgItem, idx) => {
+                  const isThumbActive = idx === photoIndex;
+                  return (
+                    <button
+                      key={`${imgItem.src}-${idx}`}
+                      type="button"
+                      role="tab"
+                      aria-selected={isThumbActive}
+                      aria-label={`View photo ${idx + 1}: ${imgItem.caption || galleryEvent.title}`}
+                      className={`office-gallery-thumb-btn ${isThumbActive ? "active" : ""}`}
+                      onClick={() => setPhotoIndex(idx)}
+                    >
+                      <img src={imgItem.src} alt="" loading="lazy" />
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 };

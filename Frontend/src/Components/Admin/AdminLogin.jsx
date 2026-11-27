@@ -158,11 +158,13 @@ const AdminLogin = () => {
       const data = await response.json().catch(() => null);
  
       if (!response.ok) {
-      setErrors({
-        api:
-          data?.message ||
-          data?.error ||
-          "Invalid credentials",
+        const fallbackMessage =
+          response.status >= 500 && !data
+            ? "Cannot connect to backend server (port 5000). Please start Pirnav.API."
+            : "Invalid credentials";
+
+        setErrors({
+          api: data?.message || data?.error || fallbackMessage,
         });
         refreshCaptcha({ clearApi: false });
         setLoading(false);

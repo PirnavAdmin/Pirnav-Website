@@ -1,6 +1,7 @@
 ﻿import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
+  Boxes,
   Brain,
   Bug,
   Building2,
@@ -11,9 +12,11 @@ import {
   GraduationCap,
   Layers3,
   MonitorCog,
+  Receipt,
   ShieldCheck,
   Sparkles,
   Users,
+  Utensils,
 } from "lucide-react";
 import "./Products.css";
 
@@ -67,7 +70,7 @@ export const productCatalog = [
     statusLabel: "Live Platform",
     logoText: "PUPIL",
     description:
-      "A unified school and collegiate ERP engineered for academic institutions. Manages complete student and staff lifecycles, role-based access control (RBAC), digital admissions, fee ledgers with automatic receipt generation, exam grade sheets, academic timetables, and integrated parent communication alerts.",
+      "A unified school and collegiate ERP engineered for academic institutions across School, Intermediate, and B.Tech campuses.",
     deployedUrl: "https://pupilscholar.com/",
     accent: "from-indigo",
     icon: GraduationCap,
@@ -76,6 +79,56 @@ export const productCatalog = [
       "Automated Fee Receipts & Dues",
       "Exam Grading & Report Cards",
       "Parent-Teacher Notification Portal",
+    ],
+    editions: [
+      {
+        id: "school",
+        label: "School",
+        tagline: "K-12 & CBSE / State Schools",
+        deployedUrl: "https://pupilscholar.com/",
+        statusLabel: "Live Platform",
+        demoTitle: "Pupil Scholar — Education & Campus ERP",
+        description:
+          "A unified school ERP engineered for K-12 institutions. Manages complete student and staff lifecycles, role-based access control (RBAC), digital admissions, fee ledgers with automatic receipt generation, exam grade sheets, academic timetables, and integrated parent communication alerts.",
+        features: [
+          "Student Lifecycle & Admissions",
+          "Automated Fee Receipts & Dues",
+          "Exam Grading & Report Cards",
+          "Parent-Teacher Notification Portal",
+        ],
+      },
+      {
+        id: "inter",
+        label: "Inter",
+        tagline: "Intermediate & Junior Colleges",
+        deployedUrl: null,
+        statusLabel: "Book Demo",
+        demoTitle: "Pupil Scholar — Inter College ERP",
+        description:
+          "Purpose-built Intermediate & Junior College Management System supporting multi-campus transfers, academic groups & board configurations, enquiry and admissions tracking, online fee gateway & fine rules, assignment evaluations, hostel fee billing, and student certificates.",
+        features: [
+          "Groups, Boards & Multi-Campus",
+          "Fee Gateway & Fine Rules",
+          "Assignments, Exams & Evaluations",
+          "Hostel Fees & Certificates",
+        ],
+      },
+      {
+        id: "btech",
+        label: "B.Tech",
+        tagline: "Engineering & Technical Campuses",
+        deployedUrl: null,
+        statusLabel: "Book Demo",
+        demoTitle: "Pupil Scholar — B.Tech Engineering ERP",
+        description:
+          "Comprehensive B.Tech Engineering College ERP covering branches, semesters, and course structures, faculty subject allocation, attendance shortage alerts, grade policies & semester results, hostel & transport fee ledgers, and placement reports.",
+        features: [
+          "Branches, Semesters & Courses",
+          "Faculty Allocation & Attendance",
+          "Grade Policies & Results",
+          "Placement Reports & Hostel/Transport",
+        ],
+      },
     ],
   },
   {
@@ -118,6 +171,106 @@ export const productCatalog = [
       "Team Collaboration & Audit Logs",
     ],
   },
+  {
+    id: "pick-and-book",
+    category: "Booking Platform",
+    filterCategory: "hospitality",
+    title: "Pick&Book — Travel & Reservation Platform",
+    shortLabel: "Pick&Book",
+    statusLabel: "Book Demo",
+    logoText: "P&B",
+    description:
+      "A unified booking and reservation platform enabling organizations and travelers to search live availability, compare multi-city routes and stays, manage reservations, and confirm bookings with streamlined payment workflows.",
+    deployedUrl: null,
+    accent: "from-orange",
+    icon: CalendarCheck2,
+    features: [
+      "Live Availability & Search",
+      "Multi-Route Reservations",
+      "Automated Ticketing",
+      "Payment-Ready Checkout",
+    ],
+  },
+  {
+    id: "inventory-management",
+    category: "Inventory & Supply",
+    filterCategory: "enterprise",
+    title: "Inventory Management — Warehouse & Stock ERP",
+    shortLabel: "Inventory ERP",
+    statusLabel: "Book Demo",
+    logoText: "IMS",
+    description:
+      "An enterprise Inventory Management System covering end-to-end procurement and warehouse control: purchase indents, purchase orders, goods receipts (GRN), barcode generation, bin & rack putaway transfers, stock audits, stock ledgers, and customer invoicing.",
+    deployedUrl: null,
+    accent: "from-blue",
+    icon: Boxes,
+    features: [
+      "Purchase Indents, Orders & GRN",
+      "Barcode, Bin & Rack Tracking",
+      "Stock Ledger & Audit Controls",
+      "Invoicing & Customer Payments",
+    ],
+  },
+  {
+    id: "canteen-management",
+    category: "Campus & Canteen",
+    filterCategory: "hospitality",
+    title: "Canteen Management — Multi-Outlet Order & Menu Suite",
+    shortLabel: "Canteen Suite",
+    statusLabel: "Book Demo",
+    logoText: "CMS",
+    description:
+      "A streamlined Canteen Management System designed for institutions, corporate parks, and multi-outlet dining counters. Supports outlet & category setup, daily menu capacity scheduling, real-time order queue handling, counter inventory control, and sales reports.",
+    deployedUrl: null,
+    accent: "from-emerald",
+    icon: Utensils,
+    features: [
+      "Multi-Outlet & Menu Setup",
+      "Live Order Queue Workflow",
+      "Daily Capacity & Stock Control",
+      "Sales Reports & Feedback",
+    ],
+  },
+  {
+    id: "invoice-billing",
+    category: "Finance & Billing",
+    filterCategory: "enterprise",
+    title: "Invoice & Billing — Multi-Tenant IBMS Suite",
+    shortLabel: "Invoice & Billing",
+    statusLabel: "Book Demo",
+    logoText: "IBMS",
+    description:
+      "A multi-tenant Invoice & Billing Management System (IBMS) built for customizable invoice templates, customer quotation approvals, credit notes, country-specific tax & discount rules, automated payment reminders, and webhook/export integrations.",
+    deployedUrl: null,
+    accent: "from-indigo",
+    icon: Receipt,
+    features: [
+      "Custom Invoice Templates & Tax",
+      "Quotations & Credit Notes",
+      "Payment & Reminder Automation",
+      "Multi-Tenant & Webhooks",
+    ],
+  },
+  {
+    id: "hotel-management",
+    category: "Hospitality & POS",
+    filterCategory: "hospitality",
+    title: "Hotel Management — Restaurant Table Billing & POS",
+    shortLabel: "Restaurant POS",
+    statusLabel: "Book Demo",
+    logoText: "HMS",
+    description:
+      "A complete hospitality management, restaurant point-of-sale (POS), and table billing suite built for hotels, food courts, and dining establishments. Powers room & table occupancy tracking, live kitchen order ticketing (KOT), digital menus, split billing, and fast checkout settlement.",
+    deployedUrl: null,
+    accent: "from-gold",
+    icon: Building2,
+    features: [
+      "Table Matrix & Dynamic Billing",
+      "Live Kitchen Order Ticketing (KOT)",
+      "Digital Menu & Quick Orders",
+      "Integrated Payment Settlement",
+    ],
+  },
 ];
 
 const filterCategories = [
@@ -125,6 +278,7 @@ const filterCategories = [
   { id: "enterprise", label: "Enterprise & HRMS" },
   { id: "health", label: "Healthcare" },
   { id: "education", label: "Education & EdTech" },
+  { id: "hospitality", label: "Travel & Hospitality" },
 ];
 
 const deliveryPoints = [
@@ -148,6 +302,9 @@ const deliveryPoints = [
 function Products() {
   const navigate = useNavigate();
   const [selectedCategory, setSelectedCategory] = useState("all");
+  const [selectedEditions, setSelectedEditions] = useState({
+    "pupil-scholar": "school",
+  });
 
   useEffect(() => {
     const elements = document.querySelectorAll(".products-reveal");
@@ -288,6 +445,62 @@ function Products() {
         <div className="products-grid">
           {filteredProducts.map((product, index) => {
             const Icon = product.icon;
+            const activeEdition = Array.isArray(product.editions)
+              ? product.editions.find(
+                  (ed) => ed.id === selectedEditions[product.id]
+                ) || product.editions[0]
+              : null;
+            const activeDeployedUrl = activeEdition
+              ? activeEdition.deployedUrl
+              : product.deployedUrl;
+            const activeStatusLabel = activeEdition
+              ? activeEdition.statusLabel
+              : product.statusLabel;
+            const activeDescription = activeEdition
+              ? activeEdition.description
+              : product.description;
+            const activeFeatures = activeEdition
+              ? activeEdition.features
+              : product.features;
+            const activeDemoTarget = activeEdition
+              ? {
+                  ...product,
+                  title: activeEdition.demoTitle || product.title,
+                  deployedUrl: activeEdition.deployedUrl,
+                }
+              : product;
+            const hasLiveSite = Boolean(activeDeployedUrl);
+
+            const mediaCardInner = (
+              <>
+                <div className="product-card-overlay" />
+
+                <div className="product-card-topline">
+                  <span className="product-card-chip">{product.category}</span>
+                  <span className="product-card-mini-tag product-card-live-badge">
+                    {hasLiveSite && <span className="live-status-dot" aria-hidden="true" />}
+                    {activeStatusLabel}
+                  </span>
+                </div>
+
+                <div className="product-card-logo-shell">
+                  <span className="product-card-logo-icon">
+                    <Icon size={34} aria-hidden="true" />
+                  </span>
+                  <div className="product-card-logo-copy">
+                    <strong>{product.logoText}</strong>
+                    <span>{activeEdition ? `${activeEdition.label} Track` : product.category}</span>
+                  </div>
+                </div>
+
+                {hasLiveSite && (
+                  <div className="product-card-hover-banner">
+                    <span>Visit Live Site</span>
+                    <ExternalLink size={14} aria-hidden="true" />
+                  </div>
+                )}
+              </>
+            );
 
             return (
               <article
@@ -295,40 +508,23 @@ function Products() {
                 className="product-card products-reveal"
                 style={{ transitionDelay: `${index * 0.06}s` }}
               >
-                {/* Visual Media Card (Clickable to Live URL) */}
-                <a
-                  href={product.deployedUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={`product-card-media ${product.accent}`}
-                  aria-label={`Open ${product.title} live project in a new tab`}
-                  title={`Launch live project: ${product.deployedUrl}`}
-                >
-                  <div className="product-card-overlay" />
-
-                  <div className="product-card-topline">
-                    <span className="product-card-chip">{product.category}</span>
-                    <span className="product-card-mini-tag product-card-live-badge">
-                      <span className="live-status-dot" aria-hidden="true" />
-                      {product.statusLabel}
-                    </span>
+                {/* Visual Media Card */}
+                {hasLiveSite ? (
+                  <a
+                    href={activeDeployedUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={`product-card-media ${product.accent}`}
+                    aria-label={`Open ${product.title} live project in a new tab`}
+                    title={`Launch live project: ${activeDeployedUrl}`}
+                  >
+                    {mediaCardInner}
+                  </a>
+                ) : (
+                  <div className={`product-card-media ${product.accent}`}>
+                    {mediaCardInner}
                   </div>
-
-                  <div className="product-card-logo-shell">
-                    <span className="product-card-logo-icon">
-                      <Icon size={34} aria-hidden="true" />
-                    </span>
-                    <div className="product-card-logo-copy">
-                      <strong>{product.logoText}</strong>
-                      <span>{product.category}</span>
-                    </div>
-                  </div>
-
-                  <div className="product-card-hover-banner">
-                    <span>Visit Live Site</span>
-                    <ExternalLink size={14} aria-hidden="true" />
-                  </div>
-                </a>
+                )}
 
                 {/* Content Body */}
                 <div className="product-card-body">
@@ -339,29 +535,72 @@ function Products() {
                     <div className="product-card-title-block">
                       <span className="product-card-label">Product Solution</span>
                       <h3>
-                        <a
-                          href={product.deployedUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="product-title-link"
-                          title={`Open ${product.title}`}
-                        >
-                          {product.title}
-                          <ExternalLink
-                            size={16}
-                            className="product-title-icon"
-                            aria-hidden="true"
-                          />
-                        </a>
+                        {hasLiveSite ? (
+                          <a
+                            href={activeDeployedUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="product-title-link"
+                            title={`Open ${product.title}`}
+                          >
+                            {product.title}
+                            <ExternalLink
+                              size={16}
+                              className="product-title-icon"
+                              aria-hidden="true"
+                            />
+                          </a>
+                        ) : (
+                          product.title
+                        )}
                       </h3>
                     </div>
                   </div>
 
-                  <p>{product.description}</p>
+                  {Array.isArray(product.editions) && product.editions.length > 0 && (
+                    <div className="product-edition-box">
+                      <div className="product-edition-header">
+                        <span className="product-edition-caption">
+                          Academic Tracks Inside Pupil Scholar
+                        </span>
+                        <span className="product-edition-tagline">
+                          {activeEdition?.tagline}
+                        </span>
+                      </div>
+                      <div
+                        className="product-edition-tabs"
+                        role="tablist"
+                        aria-label={`${product.title} tracks`}
+                      >
+                        {product.editions.map((ed) => {
+                          const isEdActive = activeEdition?.id === ed.id;
+                          return (
+                            <button
+                              key={ed.id}
+                              type="button"
+                              role="tab"
+                              aria-selected={isEdActive}
+                              className={`product-edition-tab ${isEdActive ? "active" : ""}`}
+                              onClick={() =>
+                                setSelectedEditions((prev) => ({
+                                  ...prev,
+                                  [product.id]: ed.id,
+                                }))
+                              }
+                            >
+                              {ed.label}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+
+                  <p>{activeDescription}</p>
 
                   {/* Feature Pills */}
                   <div className="product-feature-list">
-                    {product.features.map((feature) => (
+                    {activeFeatures.map((feature) => (
                       <span key={feature} className="product-feature-pill">
                         <CheckCircle2
                           size={13}
@@ -373,24 +612,26 @@ function Products() {
                     ))}
                   </div>
 
-                  {/* Dual Action Buttons */}
+                  {/* Action Buttons */}
                   <div className="product-card-actions">
-                    <a
-                      href={product.deployedUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="product-visit-btn"
-                      title={`Visit ${product.title} live application`}
-                    >
-                      <span>Visit Live Site</span>
-                      <ExternalLink size={15} aria-hidden="true" />
-                    </a>
+                    {hasLiveSite && (
+                      <a
+                        href={activeDeployedUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="product-visit-btn"
+                        title={`Visit ${product.title} live application`}
+                      >
+                        <span>Visit Live Site</span>
+                        <ExternalLink size={15} aria-hidden="true" />
+                      </a>
+                    )}
 
                     <button
                       type="button"
                       className="product-demo-btn"
-                      onClick={() => handleBookDemo(product)}
-                      title={`Book a personalized demo for ${product.title}`}
+                      onClick={() => handleBookDemo(activeDemoTarget)}
+                      title={`Book a personalized demo for ${activeDemoTarget.title}`}
                     >
                       Book a Demo
                     </button>
