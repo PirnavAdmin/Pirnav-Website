@@ -1,4 +1,5 @@
 ﻿
+using System.Text.RegularExpressions;
 using MailKit.Net.Smtp;
 using MailKit.Security;
 using MimeKit;
@@ -8,15 +9,31 @@ namespace Pirnav.API.Services
 {
     public class EmailService
     {
+        private static readonly Regex CidRegex = new(
+            @"cid:(?<id>pirnav-[a-z0-9-]+)",
+            RegexOptions.IgnoreCase | RegexOptions.Compiled);
+
         private readonly AwsSecretService _awsSecretService;
         private readonly ILogger<EmailService> _logger;
+        private readonly string _emailAssetsDir;
 
         public EmailService(
             AwsSecretService awsSecretService,
-            ILogger<EmailService> logger)
+            ILogger<EmailService> logger,
+            IWebHostEnvironment env)
         {
             _awsSecretService = awsSecretService;
             _logger = logger;
+            var candidates = new[]
+            {
+                string.IsNullOrWhiteSpace(env.WebRootPath)
+                    ? string.Empty
+                    : Path.Combine(env.WebRootPath, "images", "email"),
+                Path.Combine(env.ContentRootPath, "wwwroot", "images", "email"),
+                Path.Combine(AppContext.BaseDirectory, "wwwroot", "images", "email")
+            };
+            _emailAssetsDir = candidates.FirstOrDefault(p => !string.IsNullOrWhiteSpace(p) && Directory.Exists(p))
+                ?? Path.Combine(env.ContentRootPath, "wwwroot", "images", "email");
         }
 
         public async Task SendEmailAsync(
@@ -50,6 +67,15 @@ namespace Pirnav.API.Services
 
                 var message = new MimeMessage();
 
+                var fromDomain = fromEmail.Split('@').LastOrDefault()?.Trim() ?? string.Empty;
+                var authDomain = authEmail.Split('@').LastOrDefault()?.Trim() ?? string.Empty;
+                if (!string.Equals(fromEmail, authEmail, StringComparison.OrdinalIgnoreCase) &&
+                    !string.Equals(fromDomain, authDomain, StringComparison.OrdinalIgnoreCase))
+                {
+                    message.ReplyTo.Add(new MailboxAddress(fromName, fromEmail));
+                    fromEmail = authEmail;
+                }
+
                 message.From.Add(new MailboxAddress(fromName, fromEmail));
                 if (!string.Equals(fromEmail, authEmail, StringComparison.OrdinalIgnoreCase))
                 {
@@ -72,6 +98,7 @@ namespace Pirnav.API.Services
                 {
                     HtmlBody = body
                 };
+                AttachReferencedCidAssets(bodyBuilder, body);
                 if (!string.IsNullOrWhiteSpace(plainTextBody))
                 {
                     bodyBuilder.TextBody = plainTextBody;
@@ -94,6 +121,13 @@ namespace Pirnav.API.Services
                 await client.SendAsync(message);
 
                 await client.DisconnectAsync(true);
+
+                _logger.LogInformation(
+                    "Email delivered to {Recipient} via {SmtpHost} (From={From}, LinkedResources={CidCount})",
+                    toEmail,
+                    smtp.SMTP_SERVER,
+                    fromEmail,
+                    bodyBuilder.LinkedResources.Count);
             }
             catch (Exception ex)
             {
@@ -166,6 +200,31 @@ namespace Pirnav.API.Services
                     toEmail);
 
                 throw;
+            }
+        }
+
+        private void AttachReferencedCidAssets(BodyBuilder bodyBuilder, string? htmlBody)
+        {
+            if (string.IsNullOrWhiteSpace(htmlBody) || !Directory.Exists(_emailAssetsDir))
+                return;
+
+            var attached = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            foreach (Match match in CidRegex.Matches(htmlBody))
+            {
+                var cid = match.Groups["id"].Value;
+                if (!attached.Add(cid))
+                    continue;
+
+                var filePath = Path.Combine(_emailAssetsDir, $"{cid}.png");
+                if (!File.Exists(filePath))
+                {
+                    _logger.LogWarning("Email CID asset not found: {AssetPath}", filePath);
+                    continue;
+                }
+
+                var resource = bodyBuilder.LinkedResources.Add(filePath);
+                resource.ContentId = cid;
+                resource.ContentDisposition = new ContentDisposition(ContentDisposition.Inline);
             }
         }
     }

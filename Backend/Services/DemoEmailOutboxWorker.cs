@@ -46,9 +46,11 @@ namespace Pirnav.API.Services
             var emailService = scope.ServiceProvider.GetRequiredService<EmailService>();
 
             var now = DateTime.UtcNow;
+            var staleProcessingCutoff = now.AddMinutes(-5);
             var batch = await context.EmailOutboxes
                 .Where(e =>
-                    (e.DeliveryStatus == "Pending" || e.DeliveryStatus == "Failed") &&
+                    ((e.DeliveryStatus == "Pending" || e.DeliveryStatus == "Failed") ||
+                     (e.DeliveryStatus == "Processing" && e.CreatedAt <= staleProcessingCutoff)) &&
                     e.AttemptCount < e.MaxAttempts &&
                     (e.NextRetryAt == null || e.NextRetryAt <= now))
                 .OrderBy(e => e.CreatedAt)

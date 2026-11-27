@@ -4,8 +4,10 @@ import cricketReal2Img from "../../assets/events/cricket-real-2.jpg";
 import cricketReal3Img from "../../assets/events/cricket-real-3.jpg";
 import potluckGatheringImg from "../../assets/events/potluck-gathering.jpg";
 import potluckDishesImg from "../../assets/events/potluck-dishes.jpg";
-import traditionalGroupImg from "../../assets/events/traditional-group.jpg";
-import traditionalCelebrationImg from "../../assets/events/traditional-celebration.jpg";
+import traditionalRealCoverImg from "../../assets/events/traditional-real-cover.jpg";
+import traditionalReal1Img from "../../assets/events/traditional-real-1.jpg";
+import traditionalReal2Img from "../../assets/events/traditional-real-2.jpg";
+import traditionalReal3Img from "../../assets/events/traditional-real-3.jpg";
 
 /**
  * Centralized Office Events configuration.
@@ -101,19 +103,24 @@ export const officeEvents = [
     icon: "traditional",
     accent: "orange",
     coverImage: {
-      src: traditionalGroupImg,
-      alt: "Illustrative office celebration group dressed in vibrant traditional ethnic attire",
+      src: traditionalRealCoverImg,
+      alt: "PIRNAV team members posing together in vibrant traditional ethnic attire on Traditional Day",
     },
     galleryImages: [
       {
-        src: traditionalGroupImg,
-        alt: "Illustrative group celebration in festive traditional ethnic attire",
-        caption: "Traditional Attire Group Showcase (Temporary Sample)",
+        src: traditionalReal1Img,
+        alt: "Eight PIRNAV colleagues posing together in sarees, kurtas, and traditional veshti attire",
+        caption: "Traditional Day Team Portrait",
       },
       {
-        src: traditionalCelebrationImg,
-        alt: "Illustrative office cultural celebration with brass lamps and rangoli art",
-        caption: "Festive Decor, Rangoli & Diyas (Temporary Sample)",
+        src: traditionalReal2Img,
+        alt: "PIRNAV colleagues smiling together in festive kurtas, half sarees, and traditional outfits",
+        caption: "Cultural Attire Group Celebration",
+      },
+      {
+        src: traditionalReal3Img,
+        alt: "PIRNAV team members celebrating Traditional Day inside the office in ethnic outfits",
+        caption: "Festive Office Celebration Moments",
       },
     ],
   },

@@ -31,6 +31,9 @@
 
   <ItemGroup>
     <Folder Include="wwwroot\images\" />
+    <Content Update="wwwroot\images\email\**\*">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
 </Project>
